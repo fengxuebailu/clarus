@@ -5,15 +5,17 @@
 <h1 align="center">Clarus</h1>
 
 <p align="center">
-  <strong>Making Superhuman AI Transparent — Starting with Go/Weiqi</strong>
+  <strong>Making Superhuman AI Transparent — Starting with Go/Weiqi</strong><br/>
+  <sub>Multi-agent debate system that cracks open the AI black box</sub>
 </p>
 
 <p align="center">
+  <a href="#demo">Demo</a> &bull;
   <a href="#features">Features</a> &bull;
   <a href="#architecture">Architecture</a> &bull;
   <a href="#quick-start">Quick Start</a> &bull;
-  <a href="#how-it-works">How It Works</a> &bull;
-  <a href="#contributing">Contributing</a>
+  <a href="#the-bigger-picture">Beyond Go</a> &bull;
+  <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
 <p align="center">
@@ -22,146 +24,145 @@
   <img src="https://img.shields.io/badge/KataGo-v1.16-green" alt="KataGo" />
   <img src="https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?logo=google&logoColor=white" alt="Gemini" />
   <img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="License" />
+  <img src="https://img.shields.io/github/stars/fengxuebailu/clarus?style=social" alt="Stars" />
 </p>
 
 ---
 
-## Why Clarus?
+## The Problem
 
-Superhuman AI systems like AlphaGo and KataGo can beat every human — but **nobody can explain why they make the moves they do**. Their decision logic is a black box.
+Superhuman AI systems like AlphaGo and KataGo can beat every human player — but **nobody can explain why they make the moves they do**. Their decision logic is a black box. Existing tools show you *what* the AI recommends, but never *why*.
 
-**Clarus** cracks open that black box. It uses a multi-agent debate system to translate KataGo's raw mathematical outputs into **human-understandable reasoning** — and then **validates** that the explanation is actually correct through a novel prediction-based verification loop.
+## The Solution
 
-> *"If a student AI can read the explanation and find the right move on the board, the explanation works. If not, it gets rewritten."*
+**Clarus** uses a multi-agent debate system to translate KataGo's raw mathematical outputs into **human-understandable reasoning** — then **validates** that the explanation actually works through a novel prediction-based verification loop.
 
-This is not just a Go app. It's a prototype for **Explainable AI (XAI)** that could extend to any domain where superhuman AI makes opaque decisions — medicine, finance, autonomous systems.
+> *"If a student AI can read the explanation and find the right move on the board, the explanation works. If not, it gets rewritten — automatically."*
+
+---
+
+## Demo
+
+<!-- Replace with actual screenshot or GIF of your running application -->
+<!-- To record: use LICEcap (GIF) or OBS (video), then convert to GIF -->
+
+> **Coming soon** — Record a demo with `workspace-go.html` and drop it here!
+>
+> In the meantime, start the server and open `frontend/workspace-go.html` to see it in action.
 
 ---
 
 ## Features
 
-- **Multi-Agent Debate Engine** — 5 specialized AI agents collaborate and challenge each other to produce verified explanations
-- **Prediction-Based Verification** — Explanations are tested: can a student AI find the right move just by reading the principle?
-- **Real-Time Analysis** — WebSocket-powered live analysis with KataGo integration
-- **Contrastive Learning** — Explains *why* move A is better than move B, not just what each move does
-- **Interactive Go Board** — Play, analyze, and learn with a beautiful UI featuring an arctic fox mascot
-- **Concept Feedback Loop** — When the student AI fails, it explains *what it misunderstood*, and the teacher rewrites the explanation
+| Feature | Description |
+|---------|-------------|
+| **Multi-Agent War Room** | 4 specialized AI agents debate and verify each explanation |
+| **Prediction Verification** | A student AI tries to find the move from the explanation alone — if it can't, the explanation gets rewritten |
+| **Contrastive Learning** | Explains *why* move A beats move B, not just what each move does |
+| **Real-Time WebSocket** | Live streaming analysis with agent dialogue visible in the UI |
+| **Feedback Loop** | When verification fails, the student explains *what it misunderstood* — targeted, not generic |
+| **Context-Action-Logic** | Structured explanation format: situation, recommended action, mathematical reasoning |
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Clarus War Room                          │
-│                                                             │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
-│  │ Grandmaster   │    │ Delta Hunter │    │   Scribe     │  │
-│  │ (KataGo)     │───▶│ (Analyzer)   │───▶│ (Gemini LLM) │  │
-│  │              │    │              │    │              │  │
-│  │ Ground Truth │    │  ΔV = V_A -  │    │  Generates   │  │
-│  │ V_A, V_B     │    │       V_B    │    │  Explanation  │  │
-│  └──────────────┘    └──────────────┘    └──────┬───────┘  │
-│                                                  │          │
-│                                          ┌───────▼───────┐  │
-│                                          │   Arbiter     │  │
-│                                          │ (Student AI)  │  │
-│                                          │               │  │
-│                                          │ Can it find   │  │
-│                                          │ the right     │  │
-│                                          │ move?         │  │
-│                                          └───────┬───────┘  │
-│                                                  │          │
-│                                          ┌───────▼───────┐  │
-│                                          │  Validated?   │  │
-│                                          │  ✓ Publish    │  │
-│                                          │  ✗ Feedback   │──┘
-│                                          │    & Retry    │
-│                                          └───────────────┘
-└─────────────────────────────────────────────────────────────┘
+                           ┌─────────────────┐
+                           │   Board State    │
+                           │  + Two Moves     │
+                           └────────┬─────────┘
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │      GRANDMASTER (KataGo)      │
+                    │   Parallel simulation → V_A, V_B│
+                    └───────────────┬───────────────┘
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │      DELTA HUNTER (Python)     │
+                    │   ΔV = what changed & why      │
+                    └───────────────┬───────────────┘
+                                    │
+              ┌─────────────────────▼─────────────────────┐
+              │            VERIFICATION LOOP               │
+              │                                            │
+              │   ┌──────────┐        ┌──────────┐        │
+              │   │  SCRIBE  │──text──▶│ ARBITER  │        │
+              │   │ (Teacher)│        │(Student) │        │
+              │   │          │◀─fix───│          │        │
+              │   └──────────┘        └──────────┘        │
+              │                                            │
+              │   Correct? ──▶ Publish ✓                   │
+              │   Wrong?   ──▶ "I misread 'press' as       │
+              │                'attack', should be          │
+              │                'connect'" ──▶ Retry (≤3x)  │
+              └────────────────────────────────────────────┘
 ```
 
-### The Agents
-
-| Agent | Role | Backbone | What It Does |
-|-------|------|----------|-------------|
-| **Grandmaster** | Oracle | KataGo Engine | Generates ground truth: winrate, territory ownership, best moves |
-| **Delta Hunter** | Analyst | Python | Computes what changed between two moves (ΔV) |
-| **Scribe** | Teacher | Gemini LLM | Writes human-readable explanations using `Context → Action → Logic` |
-| **Arbiter** | Student | Gemini LLM | Reads the explanation blind and tries to predict the correct move |
-
-### Verification Loop
-
-```
-Scribe writes explanation
-    → Arbiter reads it and guesses the move
-        → Correct? Ship it ✓
-        → Wrong? Arbiter explains what it misunderstood
-            → Scribe rewrites with better terminology
-                → Retry (max 3 rounds)
-```
+| Agent | Role | Backbone | Function |
+|-------|------|----------|----------|
+| **Grandmaster** | Oracle | KataGo | Generates ground truth vectors (winrate, territory, score) |
+| **Delta Hunter** | Analyst | Python | Extracts meaningful differences between moves |
+| **Scribe** | Teacher | Gemini LLM | Writes explanations using `Context → Action → Logic` |
+| **Arbiter** | Student | Gemini LLM | Reads explanation blind, predicts the correct move |
 
 ---
 
 ## Quick Start
 
-### Prerequisites
-
-- Python 3.9+
-- [KataGo](https://github.com/lightvector/KataGo) (local install)
-- [Google Gemini API key](https://aistudio.google.com/apikey)
-
-### Setup
+### Option 1: Docker (Recommended)
 
 ```bash
-# Clone
 git clone https://github.com/fengxuebailu/clarus.git
 cd clarus
+cp backend/.env.example backend/.env
+# Edit backend/.env with your Gemini API key and KataGo path
 
-# Backend setup
-cd backend
+docker compose up
+```
+
+Open http://localhost:3000/workspace-go.html
+
+### Option 2: Manual Setup
+
+```bash
+git clone https://github.com/fengxuebailu/clarus.git
+cd clarus/backend
+
+# Environment
 cp .env.example .env
 # Edit .env with your Gemini API key and KataGo path
 
-# Create virtual environment
+# Python
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
 
-# Start the server
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# Launch
+uvicorn app.main:app --reload --port 8000
 ```
 
-### Open the UI
+Open `frontend/workspace-go.html` in your browser.
 
-Open `workspace-go.html` in your browser, or visit `http://localhost:8000/api/docs` for the API documentation.
+### Prerequisites
+
+- Python 3.9+
+- [KataGo](https://github.com/lightvector/KataGo) installed locally
+- [Google Gemini API key](https://aistudio.google.com/apikey) (free tier works)
 
 ---
 
 ## How It Works
 
-### 1. Position Analysis
+**Step 1 — Ground Truth**: KataGo evaluates two candidate moves in parallel, producing mathematical vectors (winrate, score lead, territory ownership for every intersection).
 
-Send a board position with two candidate moves. KataGo evaluates both in parallel, producing mathematical ground truth vectors (winrate, score lead, territory ownership for every intersection).
+**Step 2 — Delta Extraction**: The Delta Hunter compares the vectors and identifies what changed — which territories shifted, how the winrate swung, what tactical patterns emerged.
 
-### 2. Delta Extraction
+**Step 3 — Explanation**: The Scribe translates deltas into structured reasoning:
 
-The Delta Hunter compares the two vectors and identifies what changed — which territories shifted, how much winrate swung, what tactical patterns emerged.
+> *"In a double-atari position with 3 liberties each, extend rather than capture the ko. Extending preserves connection to the living group. Consequence: liberties 4 vs 2 = you survive."*
 
-### 3. Explanation Generation
-
-The Scribe (powered by Gemini) translates these mathematical deltas into a structured explanation following the **Context → Action → Logic** formula:
-
-> *"In a double-atari position, when both groups have 3 liberties, you must extend rather than capture the ko. Extending preserves connection to the living group. Mathematical consequence: liberties 4 vs 2 = you survive."*
-
-### 4. Prediction Verification
-
-The Arbiter (a separate LLM instance acting as a student) reads *only* the abstract principle — no coordinates, no board position — and tries to predict which move is correct.
-
-- **If correct**: The explanation genuinely conveys the tactical insight
-- **If wrong**: The Arbiter explains its confusion ("I interpreted 'press' as attack, but it meant 'connect'"), and the Scribe rewrites
+**Step 4 — Verification**: The Arbiter reads *only* the abstract principle (no coordinates, no board) and predicts which move is correct. If wrong, it explains its confusion, and the Scribe rewrites. Max 3 rounds.
 
 ---
 
@@ -169,105 +170,93 @@ The Arbiter (a separate LLM instance acting as a student) reads *only* the abstr
 
 ```
 clarus/
+├── frontend/                  # Web UI
+│   ├── workspace-go.html          # Main analysis workspace
+│   ├── go-demo.html               # Interactive Go board
+│   ├── go-demo.css / .js          # Board styles & logic
+│   ├── insight-library.html       # Knowledge base
+│   └── ...                        # Other pages
 ├── backend/
 │   ├── app/
-│   │   ├── agents/           # AI Agent implementations
-│   │   │   ├── grandmaster.py    # KataGo interface
-│   │   │   ├── scribe.py         # LLM explanation generator
-│   │   │   ├── arbiter.py        # Prediction verifier
-│   │   │   ├── delta_hunter.py   # Difference analyzer
-│   │   │   └── prompts.py        # System prompts
+│   │   ├── agents/                # AI agent implementations
+│   │   │   ├── grandmaster.py         # KataGo interface
+│   │   │   ├── scribe.py              # Explanation generator
+│   │   │   ├── arbiter.py             # Prediction verifier
+│   │   │   ├── delta_hunter.py        # Difference analyzer
+│   │   │   └── prompts.py             # System prompts
 │   │   ├── seminars/
-│   │   │   └── war_room.py       # Orchestration engine
-│   │   ├── api/
-│   │   │   ├── routes.py         # REST endpoints
-│   │   │   └── websocket_routes.py
-│   │   ├── core/
-│   │   │   ├── config.py
-│   │   │   └── katago_client.py
+│   │   │   └── war_room.py           # Orchestration engine
+│   │   ├── api/                   # FastAPI routes
+│   │   ├── core/                  # Config & KataGo client
 │   │   └── main.py
+│   ├── tests/                 # Test suite
+│   ├── scripts/               # Setup & launch scripts
+│   ├── Dockerfile
 │   └── requirements.txt
-├── workspace-go.html         # Main workspace UI
-├── go-demo.html              # Interactive Go board
-├── insight-library.html      # Knowledge base
-├── assets/mascot/            # Arctic fox mascot 🦊
-└── README.md
+├── docs/                      # Documentation
+├── assets/mascot/             # Arctic fox mascot 🦊
+├── docker-compose.yml
+├── CONTRIBUTING.md
+└── LICENSE
 ```
 
 ---
 
 ## API
 
-### REST Endpoints
-
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/api/go/analyze` | Analyze a position with two candidate moves |
-| `POST` | `/api/go/analyze/batch` | Batch analysis of multiple positions |
-| `GET`  | `/api/go/health` | Health check (includes KataGo status) |
-| `GET`  | `/api/go/concepts` | List available Go concepts |
+| `POST` | `/api/go/analyze/batch` | Batch analysis |
+| `GET`  | `/api/go/health` | Health check with KataGo status |
+| `GET`  | `/api/go/concepts` | List Go concepts |
+| `WS`   | `/api/ws/analyze` | Real-time streaming analysis |
 
-### WebSocket
-
-Connect to `/api/ws/analyze` for real-time streaming analysis with live agent dialogue.
+Full API docs available at http://localhost:8000/api/docs when running.
 
 ---
 
-## Tech Stack
+## The Bigger Picture
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | FastAPI + Python 3.9+ |
-| Go Engine | KataGo v1.16 (local, CPU/GPU) |
-| LLM | Google Gemini 2.5 Flash |
-| Frontend | Vanilla HTML/CSS/JS |
-| Real-time | WebSocket |
+Go is just the starting point. The core innovation — **prediction-based verification of AI explanations** — applies to any domain where superhuman AI makes opaque decisions:
+
+| Domain | Verification Question |
+|--------|----------------------|
+| **Medical AI** | Can a doctor, reading only the explanation, arrive at the same diagnosis? |
+| **Trading AI** | Can an analyst, reading the rationale, predict the same position? |
+| **Autonomous Driving** | Can an engineer, reading the decision log, predict the system's action? |
+| **Legal AI** | Can a lawyer, reading the reasoning, predict the same ruling? |
+
+If the explanation passes the prediction test, it works. If not, rewrite it until it does.
 
 ---
 
 ## Roadmap
 
 - [ ] SGF file import/export
-- [ ] Game review mode (full-game analysis)
-- [ ] User accounts & progress tracking
-- [ ] Seminar II: Strategy Room (macro-level whole-board analysis)
-- [ ] Multi-language explanation support
-- [ ] Extend the verification framework beyond Go
-
----
-
-## The Bigger Picture
-
-Go is just the beginning. The core innovation — **using prediction-based verification to ensure AI explanations are actually useful** — applies anywhere superhuman AI makes decisions:
-
-- **Medical AI**: Can a doctor, reading only the explanation, arrive at the same diagnosis?
-- **Trading AI**: Can an analyst, reading the rationale, predict the same position?
-- **Autonomous Systems**: Can an engineer, reading the decision log, predict the system's action?
-
-If the explanation passes the prediction test, it works. If not, rewrite it until it does.
+- [ ] Full-game review mode
+- [ ] User accounts & learning progress
+- [ ] Seminar II: Strategy Room (macro-level analysis)
+- [ ] Multi-language explanations
+- [ ] Extend verification framework beyond Go
+- [ ] Published research paper on prediction-based XAI
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Whether you're a Go player, an AI researcher, or a developer interested in explainable AI:
-
-1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+We welcome contributions from Go players, AI researchers, and developers. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ---
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT — see [LICENSE](LICENSE).
 
 ---
 
 <p align="center">
   <img src="assets/mascot/arctic-fox-waving.png" alt="Clarus Fox" width="100" />
   <br />
-  <em>Built with curiosity by the Clarus team</em>
+  <em>Built with curiosity. Making AI explain itself.</em>
 </p>
