@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+nul
+
+# Logs
+*.log
+analysis_logs/
+backend/analysis_logs/
+
+# Test outputs
+backend/test_output.txt
+backend/test_e2e_results.json
+backend/katago_response.json
+
+# Backup files
+*.bak
+workspace-go-backup.html
+workspace-go-before-tabs.html
+
+# Internal docs (not needed for public repo)
+DESIGN_UPDATE_SUMMARY.md
+KATAGO_ENABLED.md
+KATAGO_FIX_APPLIED.md
+KATAGO_FIX_SUMMARY.md
+READY_TO_TEST.md
+SERVER_RUNNING.md
+STARTUP_STATUS.txt
+UPDATE_LOG.md
+
+# Temp scripts
+batch_update_glass.py
+fix_design_consistency.py
+update_glassmorphism.py
+refresh_browser.bat
+test_ws*.py
+tips.txt
+
+# Debug/intermediate files
+backend/debug_*.py
+backend/restart_server.py
+backend/start_server.py
+backend/verify_cuda.py
+backend/test_api_analyze.py
+backend/test_gemini_config.py
+testmain-screenshot.png
+workspace-go-basic.html
+workspace-go-enhanced.html
+
+# Claude/Beads internal
+.beads/
+.claude/

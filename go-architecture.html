@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clarus - 围棋架构图</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700;900&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f4d03f;
+            --gold-dark: #aa8a2e;
+            --ink-black: #1a1a1a;
+            --mist-white: #f5f0e8;
+            --agent-grandmaster: #e74c3c;
+            --agent-scribe: #3498db;
+            --agent-profiler: #2ecc71;
+            --agent-arbiter: #f39c12;
+            --agent-delta: #9b59b6;
+            --katago-red: #dc2626;
+            --gemini-blue: #6366f1;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Serif SC', 'Ma Shan Zheng', serif;
+            background: #0a0a0a;
+            color: var(--mist-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Background layers */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 15%, rgba(212,175,55,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 20% 80%, rgba(99,102,241,0.04) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 80%, rgba(212,175,55,0.04) 0%, transparent 40%),
+                linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 40%, #0f0f0f 100%);
+            z-index: -2;
+        }
+
+        /* Mountain silhouette */
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%; height: 40%;
+            background: linear-gradient(to bottom, transparent 0%, rgba(55,65,81,0.3) 50%, rgba(75,85,99,0.4) 100%);
+            clip-path: polygon(
+                0% 100%, 0% 60%, 8% 65%, 15% 55%, 22% 60%, 30% 50%,
+                38% 55%, 45% 45%, 52% 50%, 60% 42%, 68% 48%, 75% 40%,
+                82% 45%, 90% 52%, 95% 48%, 100% 55%, 100% 100%
+            );
+            z-index: -1;
+            filter: blur(2px);
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .particle {
+            position: absolute;
+            width: 3px; height: 3px;
+            background: radial-gradient(circle, rgba(244,208,63,0.7), transparent);
+            border-radius: 50%;
+            animation: particleFloat var(--dur) linear infinite;
+            opacity: 0;
+        }
+        @keyframes particleFloat {
+            0%   { opacity: 0; transform: translateY(100vh) scale(0); }
+            10%  { opacity: 0.8; }
+            90%  { opacity: 0.8; }
+            100% { opacity: 0; transform: translateY(-60px) translateX(var(--drift)) scale(1); }
+        }
+
+        /* Light rays */
+        .light-ray {
+            position: fixed;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(212,175,55,0.2) 40%, rgba(244,208,63,0.35) 50%, rgba(212,175,55,0.2) 60%, transparent);
+            filter: blur(3px);
+            z-index: 0;
+            animation: rayPulse var(--pulse) ease-in-out infinite, raySway var(--sway) ease-in-out infinite;
+        }
+        @keyframes rayPulse { 0%,100% { opacity: 0.2; } 50% { opacity: 0.5; } }
+        @keyframes raySway { 0%,100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg); } }
+
+        /* Main title */
+        .page-title {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            margin: 40px 0 10px;
+            animation: titleFadeIn 1.2s ease-out;
+        }
+        .page-title h1 {
+            font-family: 'ZCOOL XiaoWei', 'Ma Shan Zheng', cursive;
+            font-size: 42px;
+            letter-spacing: 8px;
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(212,175,55,0.4));
+        }
+        .page-title .subtitle {
+            font-size: 14px;
+            color: rgba(245,240,232,0.5);
+            letter-spacing: 4px;
+            margin-top: 6px;
+        }
+        @keyframes titleFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SVG container */
+        .svg-container {
+            position: relative;
+            z-index: 10;
+            width: 1200px;
+            max-width: 96vw;
+            margin: 20px auto 60px;
+            animation: svgRise 1.5s ease-out 0.3s backwards;
+        }
+        @keyframes svgRise {
+            from { opacity: 0; transform: translateY(40px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SVG animations */
+        @keyframes nodeGlow {
+            0%, 100% { filter: drop-shadow(0 0 6px var(--glow-color)); }
+            50%      { filter: drop-shadow(0 0 18px var(--glow-color)); }
+        }
+        @keyframes dashFlow {
+            to { stroke-dashoffset: -20; }
+        }
+        @keyframes loopPulse {
+            0%, 100% { stroke-opacity: 0.4; }
+            50%      { stroke-opacity: 1; }
+        }
+        @keyframes dataFlow {
+            0%   { offset-distance: 0%; opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { offset-distance: 100%; opacity: 0; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.7); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.6; }
+            50%      { opacity: 1; }
+        }
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        @keyframes flowRight {
+            0%   { offset-distance: 0%; opacity: 0; }
+            15%  { opacity: 1; }
+            85%  { opacity: 1; }
+            100% { offset-distance: 100%; opacity: 0; }
+        }
+
+        /* Legend */
+        .legend {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease-out 1s backwards;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: rgba(245,240,232,0.7);
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .legend-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Light rays -->
+<div class="light-ray" style="left:12%; --pulse:4s; --sway:9s;"></div>
+<div class="light-ray" style="left:38%; --pulse:5s; --sway:11s;"></div>
+<div class="light-ray" style="right:35%; --pulse:4.5s; --sway:10s;"></div>
+<div class="light-ray" style="right:10%; --pulse:5.5s; --sway:8s;"></div>
+
+<!-- Title -->
+<div class="page-title">
+    <h1>Clarus 辩证推理引擎</h1>
+    <div class="subtitle">多智能体围棋分析系统架构</div>
+</div>
+
+<!-- Architecture SVG -->
+<div class="svg-container">
+<svg viewBox="0 0 1200 920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- Gradients -->
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f4d03f"/>
+            <stop offset="50%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#f4d03f"/>
+        </linearGradient>
+        <linearGradient id="darkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#2d2d2d"/>
+            <stop offset="100%" stop-color="#1a1a1a"/>
+        </linearGradient>
+        <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ef4444"/>
+            <stop offset="100%" stop-color="#b91c1c"/>
+        </linearGradient>
+        <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#60a5fa"/>
+            <stop offset="100%" stop-color="#3b82f6"/>
+        </linearGradient>
+        <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4ade80"/>
+            <stop offset="100%" stop-color="#22c55e"/>
+        </linearGradient>
+        <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fbbf24"/>
+            <stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#c084fc"/>
+            <stop offset="100%" stop-color="#a855f7"/>
+        </linearGradient>
+        <linearGradient id="frontendGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#818cf8"/>
+            <stop offset="100%" stop-color="#6366f1"/>
+        </linearGradient>
+        <linearGradient id="loopGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f59e0b"/>
+            <stop offset="50%" stop-color="#ef4444"/>
+            <stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+
+        <!-- Glow filters -->
+        <filter id="glowGold" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+            <feFlood flood-color="#d4af37" flood-opacity="0.4"/>
+            <feComposite in2="blur" operator="in"/>
+            <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glowRed" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+            <feFlood flood-color="#ef4444" flood-opacity="0.35"/>
+            <feComposite in2="blur" operator="in"/>
+            <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glowBlue" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+            <feFlood flood-color="#3b82f6" flood-opacity="0.35"/>
+            <feComposite in2="blur" operator="in"/>
+            <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glowGreen" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+            <feFlood flood-color="#22c55e" flood-opacity="0.35"/>
+            <feComposite in2="blur" operator="in"/>
+            <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glowOrange" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+            <feFlood flood-color="#f59e0b" flood-opacity="0.35"/>
+            <feComposite in2="blur" operator="in"/>
+            <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glowPurple" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+            <feFlood flood-color="#a855f7" flood-opacity="0.35"/>
+            <feComposite in2="blur" operator="in"/>
+            <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="softShadow" x="-10%" y="-10%" width="130%" height="130%">
+            <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.5"/>
+        </filter>
+
+        <!-- Arrow markers -->
+        <marker id="arrowGold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#d4af37"/>
+        </marker>
+        <marker id="arrowWhite" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(245,240,232,0.5)"/>
+        </marker>
+
+        <!-- Data flow dot -->
+        <radialGradient id="dotGold">
+            <stop offset="0%" stop-color="#f4d03f"/>
+            <stop offset="100%" stop-color="#d4af37" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Paths for motion -->
+        <path id="pathUserToAPI" d="M 600 120 L 600 195" fill="none"/>
+        <path id="pathAPItoGM" d="M 500 280 L 260 350" fill="none"/>
+        <path id="pathAPItoWR" d="M 600 280 L 600 380" fill="none"/>
+        <path id="pathGMtoDelta" d="M 260 440 L 460 510" fill="none"/>
+        <path id="pathDeltaToScribe" d="M 600 560 L 600 640" fill="none"/>
+        <path id="pathScribeToProfiler" d="M 700 690 L 830 690" fill="none"/>
+        <path id="pathProfilerToArbiter" d="M 940 640 L 940 560" fill="none"/>
+        <path id="pathArbiterToScribe" d="M 850 510 L 700 660" fill="none"/>
+    </defs>
+
+    <!-- ==================== LAYER 1: FRONTEND ==================== -->
+    <!-- Frontend / User Layer -->
+    <g style="animation: fadeInUp 0.8s ease-out 0.2s backwards">
+        <!-- User Input Box -->
+        <rect x="400" y="30" width="400" height="90" rx="16" fill="rgba(99,102,241,0.08)" stroke="rgba(99,102,241,0.3)" stroke-width="1.5" filter="url(#softShadow)"/>
+        <rect x="400" y="30" width="400" height="90" rx="16" fill="none" stroke="url(#frontendGrad)" stroke-width="1" opacity="0.5">
+            <animate attributeName="stroke-opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/>
+        </rect>
+
+        <!-- Go board mini icon -->
+        <g transform="translate(430, 52)">
+            <rect width="44" height="44" rx="4" fill="rgba(245,240,232,0.1)" stroke="rgba(212,175,55,0.4)" stroke-width="1"/>
+            <line x1="11" y1="0" x2="11" y2="44" stroke="rgba(212,175,55,0.3)" stroke-width="0.5"/>
+            <line x1="22" y1="0" x2="22" y2="44" stroke="rgba(212,175,55,0.3)" stroke-width="0.5"/>
+            <line x1="33" y1="0" x2="33" y2="44" stroke="rgba(212,175,55,0.3)" stroke-width="0.5"/>
+            <line x1="0" y1="11" x2="44" y2="11" stroke="rgba(212,175,55,0.3)" stroke-width="0.5"/>
+            <line x1="0" y1="22" x2="44" y2="22" stroke="rgba(212,175,55,0.3)" stroke-width="0.5"/>
+            <line x1="0" y1="33" x2="44" y2="33" stroke="rgba(212,175,55,0.3)" stroke-width="0.5"/>
+            <circle cx="11" cy="11" r="4" fill="#1a1a1a"/>
+            <circle cx="22" cy="22" r="4" fill="#f5f0e8" stroke="#ccc" stroke-width="0.5"/>
+            <circle cx="33" cy="11" r="4" fill="#1a1a1a"/>
+        </g>
+
+        <text x="490" y="62" fill="var(--mist-white)" font-size="16" font-weight="700" font-family="'ZCOOL XiaoWei', cursive" letter-spacing="2">前端工作区</text>
+        <text x="490" y="82" fill="rgba(245,240,232,0.5)" font-size="11" font-family="'Noto Serif SC', serif">workspace-go.html / WebSocket + REST</text>
+        <text x="490" y="98" fill="rgba(245,240,232,0.35)" font-size="10" font-family="'Noto Serif SC', serif">棋盘状态 + 着法A + 着法B</text>
+    </g>
+
+    <!-- ==================== LAYER 2: API GATEWAY ==================== -->
+    <g style="animation: fadeInUp 0.8s ease-out 0.4s backwards">
+        <!-- Arrow from Frontend to API -->
+        <line x1="600" y1="125" x2="600" y2="195" stroke="url(#goldGrad)" stroke-width="1.5" marker-end="url(#arrowGold)" opacity="0.7"/>
+        <!-- Flow dot -->
+        <circle r="3" fill="url(#dotGold)">
+            <animateMotion dur="2s" repeatCount="indefinite" path="M 0,0 L 0,70"/>
+            <animate attributeName="opacity" values="0;1;1;0" dur="2s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- API Gateway Box -->
+        <rect x="420" y="200" width="360" height="80" rx="12" fill="rgba(30,30,30,0.9)" stroke="rgba(212,175,55,0.4)" stroke-width="1.5" filter="url(#softShadow)"/>
+        <rect x="420" y="200" width="360" height="80" rx="12" fill="none" stroke="url(#goldGrad)" stroke-width="0.8" opacity="0.3">
+            <animate attributeName="stroke-opacity" values="0.2;0.5;0.2" dur="4s" repeatCount="indefinite"/>
+        </rect>
+
+        <text x="600" y="232" fill="url(#goldGrad)" font-size="16" font-weight="700" text-anchor="middle" font-family="'ZCOOL XiaoWei', cursive" letter-spacing="3">FastAPI 接口网关</text>
+        <text x="600" y="252" fill="rgba(245,240,232,0.5)" font-size="10" text-anchor="middle" font-family="'Noto Serif SC', serif">routes.py / websocket_routes.py / main.py</text>
+        <text x="600" y="268" fill="rgba(245,240,232,0.35)" font-size="9" text-anchor="middle">分析接口 | WebSocket实时通道 | 概念词典</text>
+    </g>
+
+    <!-- ==================== LAYER 3: WAR ROOM (Orchestrator) ==================== -->
+    <g style="animation: scaleIn 0.8s ease-out 0.6s backwards">
+        <!-- War Room outer glow ring -->
+        <ellipse cx="600" cy="440" rx="310" ry="230" fill="none" stroke="rgba(212,175,55,0.08)" stroke-width="1" stroke-dasharray="4 8">
+            <animateTransform attributeName="transform" type="rotate" from="0 600 440" to="360 600 440" dur="120s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="600" cy="440" rx="290" ry="215" fill="none" stroke="rgba(212,175,55,0.05)" stroke-width="1" stroke-dasharray="2 6">
+            <animateTransform attributeName="transform" type="rotate" from="360 600 440" to="0 600 440" dur="90s" repeatCount="indefinite"/>
+        </ellipse>
+
+        <!-- War Room label -->
+        <rect x="485" y="370" width="230" height="40" rx="20" fill="rgba(212,175,55,0.1)" stroke="rgba(212,175,55,0.4)" stroke-width="1"/>
+        <text x="600" y="396" fill="url(#goldGrad)" font-size="15" font-weight="700" text-anchor="middle" font-family="'ZCOOL XiaoWei', cursive" letter-spacing="4">
+            作战室
+            <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
+        </text>
+        <text x="600" y="425" fill="rgba(245,240,232,0.4)" font-size="9" text-anchor="middle">war_room.py / 辩证重构博弈引擎</text>
+
+        <!-- Arrow from API to War Room -->
+        <line x1="600" y1="285" x2="600" y2="365" stroke="url(#goldGrad)" stroke-width="1.5" marker-end="url(#arrowGold)" opacity="0.6"/>
+    </g>
+
+    <!-- ==================== AGENT A: GRANDMASTER (KataGo) ==================== -->
+    <g style="animation: fadeInUp 0.8s ease-out 0.7s backwards">
+        <!-- Connection from API to Grandmaster -->
+        <path d="M 480 280 Q 350 310 260 345" fill="none" stroke="rgba(239,68,68,0.4)" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrowWhite)">
+            <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="1.5s" repeatCount="indefinite"/>
+        </path>
+
+        <!-- Agent A box -->
+        <g filter="url(#glowRed)">
+            <rect x="130" y="340" width="260" height="120" rx="14" fill="rgba(239,68,68,0.06)" stroke="rgba(239,68,68,0.5)" stroke-width="1.5"/>
+        </g>
+        <!-- Icon circle -->
+        <circle cx="175" cy="375" r="18" fill="url(#redGrad)" opacity="0.9">
+            <animate attributeName="r" values="18;20;18" dur="3s" repeatCount="indefinite"/>
+        </circle>
+        <text x="175" y="380" fill="white" font-size="14" font-weight="900" text-anchor="middle">A</text>
+
+        <text x="205" y="372" fill="#ef4444" font-size="14" font-weight="700" font-family="'ZCOOL XiaoWei', cursive" letter-spacing="1">棋圣 (Grandmaster)</text>
+        <text x="205" y="390" fill="rgba(245,240,232,0.5)" font-size="10">KataGo 分析引擎</text>
+
+        <text x="155" y="418" fill="rgba(245,240,232,0.6)" font-size="10">katago_client.py</text>
+        <text x="155" y="434" fill="rgba(245,240,232,0.4)" font-size="9">V_A: 胜率 / 目差 / 领地图</text>
+        <text x="155" y="448" fill="rgba(245,240,232,0.4)" font-size="9">V_B: 并行模拟对比</text>
+
+        <!-- KataGo badge -->
+        <rect x="310" y="355" width="65" height="22" rx="11" fill="rgba(220,38,38,0.2)" stroke="rgba(220,38,38,0.5)" stroke-width="0.8"/>
+        <text x="342" y="370" fill="#fca5a5" font-size="9" font-weight="600" text-anchor="middle">KataGo</text>
+    </g>
+
+    <!-- ==================== AGENT E: DELTA HUNTER ==================== -->
+    <g style="animation: fadeInUp 0.8s ease-out 0.9s backwards">
+        <!-- Connection from Grandmaster to Delta Hunter -->
+        <path d="M 390 420 Q 440 470 460 510" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrowWhite)">
+            <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="1.5s" repeatCount="indefinite"/>
+        </path>
+
+        <!-- Agent E box -->
+        <g filter="url(#glowPurple)">
+            <rect x="440" y="490" width="220" height="90" rx="14" fill="rgba(168,85,247,0.06)" stroke="rgba(168,85,247,0.5)" stroke-width="1.5"/>
+        </g>
+        <circle cx="475" cy="520" r="16" fill="url(#purpleGrad)" opacity="0.9">
+            <animate attributeName="r" values="16;18;16" dur="3.5s" repeatCount="indefinite"/>
+        </circle>
+        <text x="475" y="525" fill="white" font-size="12" font-weight="900" text-anchor="middle">E</text>
+
+        <text x="500" y="518" fill="#c084fc" font-size="13" font-weight="700" font-family="'ZCOOL XiaoWei', cursive">猎差者 (Delta Hunter)</text>
+        <text x="500" y="534" fill="rgba(245,240,232,0.5)" font-size="10">delta_hunter.py</text>
+        <text x="460" y="558" fill="rgba(245,240,232,0.4)" font-size="9">差异向量 delta_V = V_A - V_B</text>
+        <text x="460" y="572" fill="rgba(245,240,232,0.35)" font-size="9">提取关键特征变化</text>
+    </g>
+
+    <!-- ==================== RECONSTRUCTION GAME LOOP ==================== -->
+    <!-- Loop boundary -->
+    <g style="animation: scaleIn 1s ease-out 1s backwards">
+        <rect x="440" y="610" width="540" height="200" rx="20" fill="rgba(245,158,11,0.03)" stroke="rgba(245,158,11,0.2)" stroke-width="1" stroke-dasharray="8 4">
+            <animate attributeName="stroke-opacity" values="0.15;0.4;0.15" dur="4s" repeatCount="indefinite"/>
+        </rect>
+        <!-- Loop label -->
+        <rect x="620" y="600" width="180" height="24" rx="12" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.4)" stroke-width="0.8"/>
+        <text x="710" y="616" fill="#fbbf24" font-size="10" font-weight="700" text-anchor="middle" letter-spacing="1">重构验证循环 x3</text>
+
+        <!-- Spinning ring around loop -->
+        <circle cx="710" cy="710" r="95" fill="none" stroke="rgba(245,158,11,0.06)" stroke-width="1" stroke-dasharray="3 12">
+            <animateTransform attributeName="transform" type="rotate" from="0 710 710" to="360 710 710" dur="30s" repeatCount="indefinite"/>
+        </circle>
+    </g>
+
+    <!-- ==================== AGENT B: SCRIBE ==================== -->
+    <g style="animation: fadeInUp 0.8s ease-out 1.1s backwards">
+        <!-- Connection from Delta to Scribe -->
+        <path d="M 550 580 Q 540 620 530 645" fill="none" stroke="rgba(59,130,246,0.4)" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrowWhite)">
+            <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="1.5s" repeatCount="indefinite"/>
+        </path>
+
+        <!-- Agent B box -->
+        <g filter="url(#glowBlue)">
+            <rect x="455" y="635" width="200" height="110" rx="14" fill="rgba(59,130,246,0.06)" stroke="rgba(59,130,246,0.5)" stroke-width="1.5"/>
+        </g>
+        <circle cx="490" cy="665" r="16" fill="url(#blueGrad)" opacity="0.9">
+            <animate attributeName="r" values="16;18;16" dur="2.8s" repeatCount="indefinite"/>
+        </circle>
+        <text x="490" y="670" fill="white" font-size="12" font-weight="900" text-anchor="middle">B</text>
+
+        <text x="515" y="663" fill="#60a5fa" font-size="13" font-weight="700" font-family="'ZCOOL XiaoWei', cursive">书记官 (导师)</text>
+        <text x="515" y="679" fill="rgba(245,240,232,0.5)" font-size="10">scribe.py</text>
+        <text x="470" y="704" fill="rgba(245,240,232,0.4)" font-size="9">局面描述 + 金科玉律</text>
+        <text x="470" y="718" fill="rgba(245,240,232,0.4)" font-size="9">解释草案 T_n</text>
+        <text x="470" y="733" fill="rgba(245,240,232,0.35)" font-size="9">围棋概念 + 棋理智慧</text>
+
+        <!-- Gemini badge -->
+        <rect x="575" y="640" width="65" height="22" rx="11" fill="rgba(99,102,241,0.2)" stroke="rgba(99,102,241,0.5)" stroke-width="0.8"/>
+        <text x="607" y="655" fill="#a5b4fc" font-size="9" font-weight="600" text-anchor="middle">Gemini</text>
+    </g>
+
+    <!-- ==================== AGENT C: PROFILER ==================== -->
+    <g style="animation: fadeInUp 0.8s ease-out 1.2s backwards">
+        <!-- Connection from Scribe to Profiler -->
+        <path d="M 660 700 L 750 700" fill="none" stroke="rgba(34,197,94,0.4)" stroke-width="1.5" marker-end="url(#arrowWhite)">
+            <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="1.5s" repeatCount="indefinite"/>
+        </path>
+        <!-- Label on arrow -->
+        <text x="705" y="693" fill="rgba(245,240,232,0.35)" font-size="8" text-anchor="middle">解释文本 T_n</text>
+
+        <!-- Flow dot Scribe -> Profiler -->
+        <circle r="3" fill="#60a5fa" opacity="0.8">
+            <animateMotion dur="2.5s" repeatCount="indefinite" path="M 660,700 L 750,700"/>
+            <animate attributeName="opacity" values="0;1;1;0" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- Agent C box -->
+        <g filter="url(#glowGreen)">
+            <rect x="755" y="650" width="200" height="100" rx="14" fill="rgba(34,197,94,0.06)" stroke="rgba(34,197,94,0.5)" stroke-width="1.5"/>
+        </g>
+        <circle cx="790" cy="680" r="16" fill="url(#greenGrad)" opacity="0.9">
+            <animate attributeName="r" values="16;18;16" dur="3.2s" repeatCount="indefinite"/>
+        </circle>
+        <text x="790" y="685" fill="white" font-size="12" font-weight="900" text-anchor="middle">C</text>
+
+        <text x="815" y="678" fill="#4ade80" font-size="13" font-weight="700" font-family="'ZCOOL XiaoWei', cursive">鉴定师 (盲验)</text>
+        <text x="815" y="694" fill="rgba(245,240,232,0.5)" font-size="10">profiler.py</text>
+        <text x="770" y="718" fill="rgba(245,240,232,0.4)" font-size="9">从文本盲重构 V_est</text>
+        <text x="770" y="732" fill="rgba(245,240,232,0.35)" font-size="9">验证解释质量</text>
+
+        <rect x="875" y="655" width="65" height="22" rx="11" fill="rgba(99,102,241,0.2)" stroke="rgba(99,102,241,0.5)" stroke-width="0.8"/>
+        <text x="907" y="670" fill="#a5b4fc" font-size="9" font-weight="600" text-anchor="middle">Gemini</text>
+    </g>
+
+    <!-- ==================== AGENT D: ARBITER ==================== -->
+    <g style="animation: fadeInUp 0.8s ease-out 1.3s backwards">
+        <!-- Connection from Profiler up to Arbiter (on the right side) -->
+        <path d="M 900 650 Q 940 610 920 560" fill="none" stroke="rgba(245,158,11,0.4)" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrowWhite)">
+            <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="1.5s" repeatCount="indefinite"/>
+        </path>
+
+        <!-- Agent D box -->
+        <g filter="url(#glowOrange)">
+            <rect x="810" y="470" width="220" height="100" rx="14" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.5)" stroke-width="1.5"/>
+        </g>
+        <circle cx="845" cy="500" r="16" fill="url(#orangeGrad)" opacity="0.9">
+            <animate attributeName="r" values="16;18;16" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+        <text x="845" y="505" fill="white" font-size="12" font-weight="900" text-anchor="middle">D</text>
+
+        <text x="870" y="498" fill="#fbbf24" font-size="13" font-weight="700" font-family="'ZCOOL XiaoWei', cursive">仲裁者 (学生)</text>
+        <text x="870" y="514" fill="rgba(245,240,232,0.5)" font-size="10">arbiter.py</text>
+        <text x="825" y="538" fill="rgba(245,240,232,0.4)" font-size="9">预测测试: 金科玉律 -> 推导着法</text>
+        <text x="825" y="552" fill="rgba(245,240,232,0.35)" font-size="9">通过/失败 + 具体反馈</text>
+
+        <rect x="950" y="475" width="65" height="22" rx="11" fill="rgba(99,102,241,0.2)" stroke="rgba(99,102,241,0.5)" stroke-width="0.8"/>
+        <text x="982" y="490" fill="#a5b4fc" font-size="9" font-weight="600" text-anchor="middle">Gemini</text>
+
+        <!-- Feedback loop: Arbiter back to Scribe -->
+        <path d="M 810 545 Q 700 590 580 635" fill="none" stroke="rgba(245,158,11,0.3)" stroke-width="1.5" stroke-dasharray="4 6" marker-end="url(#arrowWhite)">
+            <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="stroke-opacity" values="0.2;0.5;0.2" dur="3s" repeatCount="indefinite"/>
+        </path>
+        <text x="690" y="583" fill="rgba(245,158,11,0.6)" font-size="8" text-anchor="middle" transform="rotate(-15, 690, 583)">反馈 / 重试</text>
+
+        <!-- Flow dot on feedback loop -->
+        <circle r="3" fill="#fbbf24" opacity="0.6">
+            <animateMotion dur="3s" repeatCount="indefinite" path="M 810,545 Q 700,590 580,635"/>
+            <animate attributeName="opacity" values="0;0.8;0.8;0" dur="3s" repeatCount="indefinite"/>
+        </circle>
+    </g>
+
+    <!-- ==================== OUTPUT ==================== -->
+    <g style="animation: fadeInUp 0.8s ease-out 1.5s backwards">
+        <!-- Arrow from Arbiter to Output -->
+        <path d="M 1030 520 L 1100 520 Q 1130 520 1130 550 L 1130 835 Q 1130 860 1100 860 L 680 860" fill="none" stroke="rgba(212,175,55,0.4)" stroke-width="1.5" marker-end="url(#arrowGold)" stroke-dasharray="8 4">
+            <animate attributeName="stroke-dashoffset" from="0" to="-24" dur="2s" repeatCount="indefinite"/>
+        </path>
+        <text x="1140" y="700" fill="rgba(212,175,55,0.5)" font-size="9" text-anchor="middle" transform="rotate(90, 1140, 700)">验证通过</text>
+
+        <!-- Output box -->
+        <rect x="380" y="835" width="300" height="70" rx="14" fill="rgba(212,175,55,0.06)" stroke="rgba(212,175,55,0.5)" stroke-width="1.5" filter="url(#glowGold)"/>
+        <text x="530" y="862" fill="url(#goldGrad)" font-size="15" font-weight="700" text-anchor="middle" font-family="'ZCOOL XiaoWei', cursive" letter-spacing="2">分析结果输出</text>
+        <text x="530" y="882" fill="rgba(245,240,232,0.5)" font-size="10" text-anchor="middle">go_analysis.py / 已验证的解释</text>
+        <text x="530" y="896" fill="rgba(245,240,232,0.35)" font-size="9" text-anchor="middle">局面描述 + 金科玉律 + 核心概念</text>
+    </g>
+
+    <!-- ==================== SCHEMAS (Side Panel) ==================== -->
+    <g style="animation: fadeInUp 0.8s ease-out 1.4s backwards">
+        <rect x="30" y="510" width="180" height="200" rx="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <text x="120" y="535" fill="rgba(245,240,232,0.6)" font-size="11" font-weight="600" text-anchor="middle" letter-spacing="1">数据模型</text>
+        <line x1="55" y1="545" x2="185" y2="545" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+        <text x="50" y="568" fill="rgba(245,240,232,0.4)" font-size="9">真值向量</text>
+        <text x="50" y="586" fill="rgba(245,240,232,0.4)" font-size="9">估计向量</text>
+        <text x="50" y="604" fill="rgba(245,240,232,0.4)" font-size="9">差异向量</text>
+        <text x="50" y="622" fill="rgba(245,240,232,0.4)" font-size="9">解释草案</text>
+        <text x="50" y="640" fill="rgba(245,240,232,0.4)" font-size="9">预测测试</text>
+        <text x="50" y="658" fill="rgba(245,240,232,0.4)" font-size="9">重构反馈</text>
+        <text x="50" y="676" fill="rgba(245,240,232,0.4)" font-size="9">概念词典</text>
+        <text x="50" y="694" fill="rgba(245,240,232,0.4)" font-size="9">分析结果</text>
+    </g>
+
+    <!-- ==================== UTILS (Side Panel) ==================== -->
+    <g style="animation: fadeInUp 0.8s ease-out 1.4s backwards">
+        <rect x="30" y="340" width="80" height="140" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <text x="70" y="362" fill="rgba(245,240,232,0.5)" font-size="10" font-weight="600" text-anchor="middle">工具</text>
+        <line x1="40" y1="370" x2="100" y2="370" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <text x="45" y="390" fill="rgba(245,240,232,0.4)" font-size="8">棋盘类</text>
+        <text x="45" y="406" fill="rgba(245,240,232,0.35)" font-size="8">SGF解析</text>
+        <text x="45" y="422" fill="rgba(245,240,232,0.35)" font-size="8">坐标系</text>
+        <text x="45" y="438" fill="rgba(245,240,232,0.35)" font-size="8">格式转换</text>
+        <text x="45" y="458" fill="rgba(245,240,232,0.3)" font-size="7">go_board.py</text>
+    </g>
+
+    <!-- ==================== DATA FLOW NUMBERS ==================== -->
+    <!-- Step indicators -->
+    <g style="animation: breathe 3s ease-in-out infinite">
+        <!-- Step 1 -->
+        <circle cx="560" cy="160" r="11" fill="rgba(212,175,55,0.15)" stroke="rgba(212,175,55,0.5)" stroke-width="1"/>
+        <text x="560" y="164" fill="#d4af37" font-size="10" font-weight="700" text-anchor="middle">1</text>
+
+        <!-- Step 2 -->
+        <circle cx="370" cy="320" r="11" fill="rgba(239,68,68,0.15)" stroke="rgba(239,68,68,0.5)" stroke-width="1"/>
+        <text x="370" y="324" fill="#ef4444" font-size="10" font-weight="700" text-anchor="middle">2</text>
+
+        <!-- Step 3 -->
+        <circle cx="440" cy="475" r="11" fill="rgba(168,85,247,0.15)" stroke="rgba(168,85,247,0.5)" stroke-width="1"/>
+        <text x="440" y="479" fill="#a855f7" font-size="10" font-weight="700" text-anchor="middle">3</text>
+
+        <!-- Step 4 -->
+        <circle cx="450" cy="610" r="11" fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.5)" stroke-width="1"/>
+        <text x="450" y="614" fill="#3b82f6" font-size="10" font-weight="700" text-anchor="middle">4</text>
+
+        <!-- Step 5 -->
+        <circle cx="530" cy="860" r="11" fill="rgba(212,175,55,0.15)" stroke="rgba(212,175,55,0.5)" stroke-width="1"/>
+        <text x="530" y="864" fill="#d4af37" font-size="10" font-weight="700" text-anchor="middle">5</text>
+    </g>
+
+    <!-- ==================== DECORATIVE ELEMENTS ==================== -->
+    <!-- Ink splash decoration top-right -->
+    <g opacity="0.06">
+        <circle cx="1100" cy="100" r="60" fill="white"/>
+        <circle cx="1120" cy="80" r="30" fill="white"/>
+        <circle cx="1080" cy="120" r="25" fill="white"/>
+    </g>
+
+    <!-- Ink splash decoration bottom-left -->
+    <g opacity="0.04">
+        <circle cx="80" cy="830" r="50" fill="white"/>
+        <circle cx="60" cy="850" r="25" fill="white"/>
+    </g>
+</svg>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+    <div class="legend-item">
+        <div class="legend-dot" style="background: #ef4444;"></div>
+        <span>A 棋圣 (KataGo)</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot" style="background: #a855f7;"></div>
+        <span>E 猎差者</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot" style="background: #3b82f6;"></div>
+        <span>B 书记官 (Gemini)</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot" style="background: #22c55e;"></div>
+        <span>C 鉴定师 (Gemini)</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot" style="background: #f59e0b;"></div>
+        <span>D 仲裁者 (Gemini)</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot" style="background: linear-gradient(135deg, #f4d03f, #d4af37);"></div>
+        <span>数据流</span>
+    </div>
+</div>
+
+<script>
+// Create floating particles
+const particlesContainer = document.getElementById('particles');
+for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.setProperty('--dur', (12 + Math.random() * 10) + 's');
+    p.style.setProperty('--drift', (Math.random() * 80 - 40) + 'px');
+    p.style.animationDelay = Math.random() * 15 + 's';
+    p.style.width = (2 + Math.random() * 2) + 'px';
+    p.style.height = p.style.width;
+    particlesContainer.appendChild(p);
+}
+</script>
+</body>
+</html>

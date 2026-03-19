@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clarus - 注册</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            /* 金色系统 */
+            --color-primary-gold: #d4af37;
+            --color-gold-light: #f4d03f;
+            --color-gold-dark: #b8941e;
+            --color-gold-darker: #8b6914;
+
+            /* 墨色系统 */
+            --color-ink-black: #1a1a1a;
+            --color-ink-darkgray: #2d2d2d;
+            --color-ink-gray: #4a4a4a;
+            --color-mountain-gray: #6b7280;
+
+            /* 米白系统 */
+            --color-mist-white: #f5f0e8;
+            --color-paper-white: rgba(245, 240, 232, 0.92);
+
+            /* 字体 */
+            --font-title: 'STKaiti', 'KaiTi', 'Microsoft YaHei', 'SimHei', serif;
+            --font-primary: 'Microsoft YaHei', 'SimSun', 'STSong', sans-serif;
+
+            /* 间距 */
+            --spacing-1: 0.5rem;
+            --spacing-2: 1rem;
+            --spacing-3: 1.5rem;
+            --spacing-4: 2rem;
+            --spacing-6: 3rem;
+
+            /* 圆角 */
+            --radius-small: 4px;
+            --radius-medium: 8px;
+            --radius-large: 20px;
+            --radius-xl: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: #0f0f0f;
+            color: var(--color-ink-darkgray);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 天空背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 50% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                linear-gradient(to bottom, #1a1a1a 0%, #2d2d2d 30%, #1a1a1a 60%, #0f0f0f 100%);
+            z-index: -5;
+            pointer-events: none;
+        }
+
+        /* 山峰层 */
+        .ink-mountain {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .ink-mountain.layer-3 {
+            height: 60%;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(96, 165, 250, 0.1) 30%,
+                rgba(75, 85, 99, 0.35) 60%,
+                rgba(55, 65, 81, 0.45) 100%);
+            clip-path: polygon(0% 100%, 0% 50%, 8% 54%, 15% 48%, 22% 52%, 28% 45%, 35% 50%, 42% 42%, 48% 48%, 55% 40%, 62% 46%, 68% 38%, 75% 44%, 82% 36%, 88% 42%, 95% 48%, 100% 44%, 100% 100%);
+            filter: blur(4px);
+            z-index: -3;
+        }
+
+        .ink-mountain.layer-2 {
+            height: 55%;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(96, 165, 250, 0.15) 20%,
+                rgba(75, 85, 99, 0.55) 50%,
+                rgba(55, 65, 81, 0.7) 100%);
+            clip-path: polygon(0% 100%, 0% 60%, 6% 63%, 12% 56%, 18% 60%, 24% 52%, 30% 57%, 36% 48%, 42% 54%, 48% 46%, 54% 52%, 60% 44%, 66% 50%, 72% 42%, 78% 48%, 84% 55%, 90% 50%, 96% 58%, 100% 52%, 100% 100%);
+            filter: blur(2px);
+            z-index: -2;
+        }
+
+        .ink-mountain.layer-1 {
+            height: 50%;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(75, 85, 99, 0.7) 30%,
+                rgba(55, 65, 81, 0.85) 60%,
+                rgba(31, 41, 55, 0.95) 100%);
+            clip-path: polygon(0% 100%, 0% 70%, 3% 75%, 7% 68%, 12% 72%, 18% 65%, 23% 70%, 28% 62%, 33% 68%, 38% 60%, 43% 65%, 48% 58%, 53% 63%, 58% 55%, 63% 60%, 68% 52%, 73% 58%, 78% 50%, 83% 55%, 88% 62%, 93% 58%, 97% 65%, 100% 60%, 100% 100%);
+            filter: blur(0.5px);
+            z-index: -1;
+        }
+
+        /* 云雾效果 */
+        .mountain-mist {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .mountain-mist::before,
+        .mountain-mist::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle,
+                rgba(255, 255, 255, 0.12) 0%,
+                rgba(255, 255, 255, 0.05) 40%,
+                transparent 70%);
+            filter: blur(40px);
+            animation: mistFlow 20s ease-in-out infinite;
+        }
+
+        .mountain-mist::before {
+            width: 1000px;
+            height: 500px;
+            top: 15%;
+            left: -10%;
+        }
+
+        .mountain-mist::after {
+            width: 800px;
+            height: 400px;
+            top: 35%;
+            right: -10%;
+            animation-delay: 10s;
+        }
+
+        @keyframes mistFlow {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+            50% { transform: translate(100px, -50px) scale(1.2); opacity: 0.5; }
+        }
+
+        /* 金色光线 */
+        .light-ray {
+            position: fixed;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(212, 175, 55, 0.3) 30%,
+                rgba(244, 208, 63, 0.5) 50%,
+                rgba(212, 175, 55, 0.3) 70%,
+                transparent 100%);
+            filter: blur(2px);
+            transform-origin: top center;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .light-ray:nth-child(5) { left: 15%; animation: rayPulse 4s ease-in-out infinite, raySway 8s ease-in-out infinite; }
+        .light-ray:nth-child(6) { left: 35%; animation: rayPulse 5s ease-in-out infinite 1s, raySway 10s ease-in-out infinite; }
+        .light-ray:nth-child(7) { right: 35%; animation: rayPulse 4.5s ease-in-out infinite 2s, raySway 9s ease-in-out infinite; }
+        .light-ray:nth-child(8) { right: 15%; animation: rayPulse 5.5s ease-in-out infinite 1.5s, raySway 11s ease-in-out infinite; }
+
+        @keyframes rayPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes raySway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        /* 粒子效果 */
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: radial-gradient(circle, rgba(244, 208, 63, 0.8), transparent);
+            border-radius: 50%;
+            animation: particleFloat 15s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes particleFloat {
+            0% { opacity: 0; transform: translateY(100vh) translateX(0) scale(0); }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-100px) translateX(var(--drift)) scale(1); }
+        }
+
+        header {
+            background: rgba(245, 240, 232, 0.95);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: none;
+            border-bottom: 3px solid rgba(212, 175, 55, 0.6);
+            padding: var(--spacing-2) var(--spacing-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 90px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 40px rgba(212, 175, 55, 0.2);
+            position: relative;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--color-gold-darker);
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            color: var(--color-primary-gold);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .nav-link {
+            color: var(--color-ink-darkgray);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--color-primary-gold);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-4);
+        }
+
+        .register-container {
+            background: rgba(245, 240, 232, 0.92);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            padding: 3rem;
+            border-radius: var(--radius-xl);
+            border: 3px solid rgba(212, 175, 55, 0.6);
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(212, 175, 55, 0.3),
+                inset 0 0 60px rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 520px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 金色装饰角 */
+        .register-container::before,
+        .register-container::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-width: 3px;
+            border-style: solid;
+            border-color: rgba(212, 175, 55, 0.9);
+            z-index: 1;
+            box-shadow:
+                0 0 15px rgba(212, 175, 55, 0.4),
+                inset 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .register-container::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: 32px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
+        }
+
+        .register-container::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+            border-bottom-right-radius: 32px;
+            background: linear-gradient(315deg, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: var(--spacing-6);
+        }
+
+        .register-title {
+            font-family: var(--font-title);
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: var(--spacing-2);
+            color: var(--color-gold-darker);
+            letter-spacing: 0.05em;
+        }
+
+        .register-subtitle {
+            font-size: 1rem;
+            color: var(--color-ink-gray);
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-3);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: var(--spacing-1);
+            color: var(--color-ink-darkgray);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            border-radius: var(--radius-large);
+            font-size: 1rem;
+            font-family: var(--font-primary);
+            transition: all 0.3s ease;
+            height: 48px;
+            color: var(--color-ink-darkgray);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-input::placeholder {
+            color: rgba(107, 79, 19, 0.5);
+        }
+
+        .form-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(212, 175, 55, 0.8);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-1);
+            margin-bottom: var(--spacing-4);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--color-primary-gold);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .custom-checkbox:hover {
+            border-color: var(--color-gold-light);
+        }
+
+        .checkbox-text a {
+            color: var(--color-primary-gold);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .checkbox-text a:hover {
+            color: var(--color-gold-light);
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg,
+                rgba(212, 175, 55, 0.95) 0%,
+                rgba(244, 208, 63, 1) 50%,
+                rgba(212, 175, 55, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            color: #1a1a1a;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 1rem;
+            letter-spacing: -0.01em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 0 40px rgba(212, 175, 55, 0.6),
+                0 10px 30px rgba(0, 0, 0, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-register::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            animation: btnShine 3s linear infinite;
+        }
+
+        @keyframes btnShine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .btn-register:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 60px rgba(212, 175, 55, 0.9), 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .divider {
+            text-align: center;
+            margin: var(--spacing-4) 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(212, 175, 55, 0.3);
+        }
+
+        .divider-text {
+            background: rgba(245, 240, 232, 0.9);
+            padding: 0 var(--spacing-2);
+            position: relative;
+            color: var(--color-ink-gray);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .social-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-4);
+        }
+
+        .btn-social {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-large);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .btn-social:hover {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: rgba(212, 175, 55, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(212, 175, 55, 0.15);
+        }
+
+        .register-footer {
+            text-align: center;
+            margin-top: var(--spacing-4);
+            font-size: 0.9rem;
+            color: var(--color-ink-gray);
+        }
+
+        .register-footer a {
+            color: var(--color-primary-gold);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 600;
+        }
+
+        .register-footer a:hover {
+            color: var(--color-gold-light);
+        }
+
+        footer {
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border-top: 2px solid rgba(212, 175, 55, 0.3);
+            color: rgba(245, 240, 232, 0.85);
+            padding: var(--spacing-4);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        footer a {
+            color: rgba(212, 175, 55, 0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            color: var(--color-gold-light);
+        }
+
+        @media (max-width: 768px) {
+            .register-container {
+                padding: var(--spacing-4);
+            }
+
+            .register-title {
+                font-size: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .social-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 山水背景装饰元素 -->
+    <div class="mountain-mist"></div>
+    <div class="ink-mountain layer-3"></div>
+    <div class="ink-mountain layer-2"></div>
+    <div class="ink-mountain layer-1"></div>
+
+    <!-- 金色光线 -->
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
+
+    <header>
+        <a href="testmain.html" class="logo">Clarus</a>
+        <a href="testmain.html" class="nav-link">返回首页</a>
+    </header>
+
+    <div class="main-content">
+        <div class="register-container">
+            <div class="register-header">
+                <h1 class="register-title">加入 Clarus</h1>
+                <p class="register-subtitle">开始探索 AI 决策的奥秘</p>
+            </div>
+
+            <form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">名字</label>
+                        <input type="text" class="form-input" placeholder="张三" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">姓氏</label>
+                        <input type="text" class="form-input" placeholder="李" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">邮箱地址</label>
+                    <input type="email" class="form-input" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" class="form-input" placeholder="至少 8 个字符" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">确认密码</label>
+                    <input type="password" class="form-input" placeholder="重新输入密码" required>
+                </div>
+
+                <label class="checkbox-group">
+                    <div class="custom-checkbox"></div>
+                    <span class="checkbox-text">我同意 <a href="#">服务条款</a> 和 <a href="#">隐私政策</a></span>
+                </label>
+
+                <button type="submit" class="btn-register">创建账户</button>
+            </form>
+
+            <div class="divider">
+                <span class="divider-text">或使用以下方式注册</span>
+            </div>
+
+            <div class="social-buttons">
+                <button class="btn-social">🔵 Google</button>
+                <button class="btn-social">🖤 GitHub</button>
+            </div>
+
+            <div class="register-footer">
+                已有账户？<a href="login.html">立即登录</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div style="margin-bottom: var(--spacing-2);">
+            <a href="#">隐私政策</a> •
+            <a href="#">服务条款</a>
+        </div>
+        <p style="font-size: 0.85rem; color: rgba(212, 175, 55, 0.7);">© 2024 Clarus. 保留所有权利。</p>
+    </footer>
+
+    <script>
+        // 生成金色粒子
+        for(let i = 0; i < 25; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.setProperty('--drift', (Math.random() - 0.5) * 200 + 'px');
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (12 + Math.random() * 6) + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+</body>
+</html>

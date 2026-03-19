@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clarus - 洞察文库</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            /* 金色系统 */
+            --color-primary-gold: #d4af37;
+            --color-gold-light: #f4d03f;
+            --color-gold-dark: #b8941e;
+            --color-gold-darker: #8b6914;
+
+            /* 墨色系统 */
+            --color-ink-black: #1a1a1a;
+            --color-ink-darkgray: #2d2d2d;
+            --color-ink-gray: #4a4a4a;
+            --color-mountain-gray: #6b7280;
+
+            /* 米白系统 */
+            --color-mist-white: #f5f0e8;
+            --color-paper-white: rgba(245, 240, 232, 0.92);
+
+            /* 兼容旧变量 */
+            --color-primary-blue: #d4af37;
+            --color-dark-gray: #2d2d2d;
+            --color-warm-beige: #f5f0e8;
+            --color-medium-gray: #4a4a4a;
+            --color-light-gray: rgba(212, 175, 55, 0.3);
+            --color-dark-charcoal: #1a1a1a;
+
+            /* 字体 */
+            --font-title: 'STKaiti', 'KaiTi', 'Microsoft YaHei', 'SimHei', serif;
+            --font-primary: 'Microsoft YaHei', 'SimSun', 'STSong', sans-serif;
+            --spacing-1: 0.5rem;
+            --spacing-2: 1rem;
+            --spacing-3: 1.5rem;
+            --spacing-4: 2rem;
+            --spacing-6: 3rem;
+            --spacing-8: 4rem;
+            --radius-small: 4px;
+            --radius-medium: 8px;
+            --radius-large: 20px;
+            --radius-xl: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: #0f0f0f;
+            color: var(--color-ink-darkgray);
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 天空背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 50% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                linear-gradient(to bottom, #1a1a1a 0%, #2d2d2d 30%, #1a1a1a 60%, #0f0f0f 100%);
+            z-index: -5;
+            pointer-events: none;
+        }
+
+        /* 流动的山间雾气 */
+        .mountain-mist {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 70%, rgba(245, 240, 232, 0.08) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 60%, rgba(245, 240, 232, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(245, 240, 232, 0.05) 0%, transparent 45%);
+            z-index: -4;
+            pointer-events: none;
+            animation: mistFlow 20s ease-in-out infinite;
+        }
+
+        @keyframes mistFlow {
+            0%, 100% { opacity: 0.6; transform: translateY(0) scale(1); }
+            50% { opacity: 0.9; transform: translateY(-20px) scale(1.05); }
+        }
+
+        /* 水墨山峦层 */
+        .ink-mountain {
+            position: fixed;
+            bottom: -10%;
+            width: 100%;
+            height: 40%;
+            background-size: cover;
+            background-position: bottom center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+        }
+
+        .ink-mountain.layer-1 {
+            background-image:
+                radial-gradient(ellipse at 50% 100%, transparent 20%, #0f0f0f 100%),
+                linear-gradient(to top,
+                    #1a1a1a 0%,
+                    #2d2d2d 20%,
+                    transparent 60%
+                );
+            height: 35%;
+            z-index: -1;
+            opacity: 0.9;
+        }
+
+        .ink-mountain.layer-2 {
+            background-image:
+                radial-gradient(ellipse at 30% 100%, transparent 15%, #1a1a1a 90%),
+                radial-gradient(ellipse at 70% 100%, transparent 15%, #1a1a1a 90%),
+                linear-gradient(to top,
+                    #2d2d2d 0%,
+                    #4a4a4a 25%,
+                    transparent 70%
+                );
+            height: 45%;
+            z-index: -2;
+            opacity: 0.6;
+        }
+
+        .ink-mountain.layer-3 {
+            background-image:
+                radial-gradient(ellipse at 40% 100%, transparent 20%, #2d2d2d 95%),
+                radial-gradient(ellipse at 65% 100%, transparent 18%, #2d2d2d 95%),
+                linear-gradient(to top,
+                    #4a4a4a 0%,
+                    #6b7280 20%,
+                    transparent 80%
+                );
+            height: 55%;
+            z-index: -3;
+            opacity: 0.4;
+        }
+
+        /* 金色光芒 */
+        .light-ray {
+            position: fixed;
+            top: -20%;
+            left: 50%;
+            width: 2px;
+            height: 60%;
+            background: linear-gradient(to bottom,
+                rgba(212, 175, 55, 0.4) 0%,
+                rgba(212, 175, 55, 0.15) 50%,
+                transparent 100%);
+            transform-origin: top center;
+            pointer-events: none;
+            animation: rayPulse 4s ease-in-out infinite;
+        }
+
+        .light-ray:nth-child(1) {
+            left: 25%;
+            animation-delay: 0s;
+            transform: translateX(-50%) rotate(-8deg);
+        }
+        .light-ray:nth-child(2) {
+            left: 40%;
+            animation-delay: 1s;
+            transform: translateX(-50%) rotate(-3deg);
+        }
+        .light-ray:nth-child(3) {
+            left: 60%;
+            animation-delay: 2s;
+            transform: translateX(-50%) rotate(3deg);
+        }
+        .light-ray:nth-child(4) {
+            left: 75%;
+            animation-delay: 3s;
+            transform: translateX(-50%) rotate(8deg);
+        }
+
+        @keyframes rayPulse {
+            0%, 100% { opacity: 0.3; transform: translateX(-50%) rotate(var(--rotation, 0deg)) scaleY(1); }
+            50% { opacity: 0.6; transform: translateX(-50%) rotate(var(--rotation, 0deg)) scaleY(1.1); }
+        }
+
+        /* 漂浮粒子 */
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat 15s infinite ease-in-out;
+            z-index: -2;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        header {
+            background: rgba(245, 240, 232, 0.92);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 3px solid rgba(212, 175, 55, 0.4);
+            border-left: none;
+            border-right: none;
+            padding: var(--spacing-2) var(--spacing-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 90px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 40px rgba(212, 175, 55, 0.2);
+        }
+
+        .logo {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--color-gold-darker);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--color-dark-gray);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--color-primary-gold);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: var(--spacing-2);
+        }
+
+        .btn-header {
+            position: relative;
+            background: linear-gradient(135deg,
+                rgba(212, 175, 55, 0.95) 0%,
+                rgba(244, 208, 63, 1) 50%,
+                rgba(212, 175, 55, 0.95) 100%);
+            background-size: 200% 100%;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--color-ink-black);
+            padding: 0.7rem 1.5rem;
+            border-radius: var(--radius-large);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(212, 175, 55, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            overflow: hidden;
+        }
+
+        .btn-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent);
+            transform: rotate(25deg);
+            animation: btnShine 3s infinite;
+        }
+
+        @keyframes btnShine {
+            0% { left: -60%; }
+            50%, 100% { left: 160%; }
+        }
+
+        .btn-header:hover {
+            background-position: 100% 0;
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 20px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(212, 175, 55, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .page-header {
+            background: linear-gradient(135deg,
+                rgba(212, 175, 55, 0.25) 0%,
+                rgba(244, 208, 63, 0.15) 100%);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            padding: var(--spacing-6) var(--spacing-4);
+            border-bottom: 3px solid rgba(212, 175, 55, 0.3);
+            box-shadow:
+                0 4px 16px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(212, 175, 55, 0.2);
+        }
+
+        .page-header h1 {
+            font-family: var(--font-title);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-2);
+            color: var(--color-gold-light);
+            text-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-header p {
+            color: var(--color-mist-white);
+            font-size: 1rem;
+            margin-bottom: var(--spacing-3);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-filter-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-4);
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: var(--spacing-4);
+        }
+
+        .search-box {
+            display: flex;
+            gap: var(--spacing-2);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: var(--spacing-2) 1.25rem;
+            background: rgba(245, 240, 232, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            border-radius: var(--radius-large);
+            font-size: 1rem;
+            font-family: var(--font-primary);
+            color: var(--color-ink-darkgray);
+            transition: all 0.3s ease;
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.2),
+                0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--color-ink-gray);
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(245, 240, 232, 0.98);
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow:
+                0 0 0 4px rgba(212, 175, 55, 0.15),
+                0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-search {
+            position: relative;
+            background: linear-gradient(135deg,
+                rgba(212, 175, 55, 0.95) 0%,
+                rgba(244, 208, 63, 1) 50%,
+                rgba(212, 175, 55, 0.95) 100%);
+            background-size: 200% 100%;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--color-ink-black);
+            padding: var(--spacing-2) 1.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            border-radius: var(--radius-large);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(212, 175, 55, 0.3);
+            overflow: hidden;
+        }
+
+        .btn-search::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent);
+            transform: rotate(25deg);
+            animation: btnShine 3s infinite;
+        }
+
+        .btn-search:hover {
+            background-position: 100% 0;
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 16px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(212, 175, 55, 0.5);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .filters {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-2);
+        }
+
+        .filter-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--color-gold-light);
+            margin-bottom: var(--spacing-1);
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-1);
+            padding: var(--spacing-1) 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--color-mist-white);
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            background: rgba(245, 240, 232, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(212, 175, 55, 0.5);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .checkbox:hover {
+            background: rgba(212, 175, 55, 0.3);
+            border-color: rgba(212, 175, 55, 0.8);
+            transform: scale(1.05);
+        }
+
+        .insights-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-4) var(--spacing-4);
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .insight-card {
+            background: rgba(245, 240, 232, 0.92);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border-radius: var(--radius-xl);
+            border: 3px solid rgba(212, 175, 55, 0.4);
+            padding: var(--spacing-4);
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .insight-card:hover {
+            border-color: rgba(212, 175, 55, 0.7);
+            box-shadow:
+                0 8px 16px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(212, 175, 55, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .insight-domain {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--color-primary-gold);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-2);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+        }
+
+        .insight-title {
+            font-family: var(--font-title);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-2);
+            color: var(--color-gold-darker);
+            line-height: 1.4;
+        }
+
+        .insight-summary {
+            font-size: 0.9rem;
+            color: var(--color-medium-gray);
+            margin-bottom: var(--spacing-3);
+            line-height: 1.6;
+        }
+
+        .insight-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--color-mountain-gray);
+            padding-top: var(--spacing-2);
+            border-top: 2px solid rgba(212, 175, 55, 0.2);
+        }
+
+        /* ===================== */
+        /* 分区Tab切换           */
+        /* ===================== */
+        .section-tabs {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-3) var(--spacing-4) 0;
+            display: flex;
+            gap: 8px;
+        }
+
+        .section-tab {
+            padding: 10px 28px;
+            background: transparent;
+            border: 1.5px solid transparent;
+            border-radius: 999px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: var(--font-primary);
+            color: rgba(245, 240, 232, 0.45);
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .section-tab:hover {
+            color: rgba(245, 240, 232, 0.7);
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        .section-tab.active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+            color: var(--color-gold-light);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 2px 12px rgba(212, 175, 55, 0.15);
+        }
+
+        .section-content {
+            display: none;
+        }
+
+        .section-content.active {
+            display: block;
+            animation: fadeInSection 0.35s ease;
+        }
+
+        @keyframes fadeInSection {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ================================= */
+        /* 教学体系 - Book Layout           */
+        /* ================================= */
+        .teaching-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: var(--spacing-3) var(--spacing-4) var(--spacing-4);
+        }
+
+        /* 学习路径概览 */
+        .learning-path-header {
+            margin-bottom: 20px;
+            padding: 28px 32px;
+            background: rgba(245, 240, 232, 0.92);
+            border-radius: 20px;
+            border: 1.5px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .lp-title {
+            font-family: var(--font-title);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-gold-darker);
+            margin-bottom: 4px;
+        }
+
+        .lp-subtitle {
+            font-size: 0.88rem;
+            color: var(--color-mountain-gray);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
+        .lp-stats {
+            display: flex;
+            gap: 28px;
+        }
+
+        .lp-stat {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .lp-stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--color-primary-gold);
+        }
+
+        .lp-stat-label {
+            font-size: 0.78rem;
+            color: var(--color-mountain-gray);
+        }
+
+        /* 分级筛选 */
+        .level-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .level-pill {
+            padding: 8px 20px;
+            border-radius: 999px;
+            border: 1.5px solid rgba(212, 175, 55, 0.15);
+            background: rgba(248, 244, 237, 0.5);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: var(--font-primary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            color: rgba(245, 240, 232, 0.5);
+        }
+
+        .level-pill:hover {
+            color: rgba(245, 240, 232, 0.75);
+            background: rgba(212, 175, 55, 0.08);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .level-pill.active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.08));
+            color: var(--color-gold-light);
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.12);
+        }
+
+        /* 篇章区块 */
+        .book-level {
+            margin-bottom: 28px;
+            animation: fadeInSection 0.4s ease;
+        }
+
+        .book-level-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+            padding: 14px 20px;
+            background: rgba(248, 244, 237, 0.4);
+            border-radius: 14px;
+            border-left: 4px solid var(--level-color, var(--color-primary-gold));
+        }
+
+        .book-level-icon {
+            font-size: 1.4rem;
+        }
+
+        .book-level-info { flex: 1; }
+
+        .book-level-name {
+            font-family: var(--font-title);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--color-gold-light);
+        }
+
+        .book-level-subtitle {
+            font-size: 0.8rem;
+            color: rgba(245, 240, 232, 0.45);
+            margin-top: 2px;
+        }
+
+        .book-level-count {
+            font-size: 0.75rem;
+            color: rgba(245, 240, 232, 0.35);
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: rgba(245, 240, 232, 0.06);
+        }
+
+        /* 章节列表（纵向） */
+        .chapter-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 章节卡片 */
+        .chapter-card {
+            background: rgba(248, 244, 237, 0.95);
+            border-radius: 16px;
+            border: 1.5px solid rgba(212, 175, 55, 0.15);
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        .chapter-card:hover {
+            border-color: rgba(212, 175, 55, 0.35);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .chapter-card.expanded {
+            box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+
+        .chapter-top {
+            padding: 16px 20px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .chapter-top:hover {
+            background: rgba(212, 175, 55, 0.03);
+        }
+
+        .chapter-num {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-title);
+            font-size: 0.95rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .chapter-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chapter-name {
+            font-family: var(--font-title);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--color-gold-darker);
+            margin-bottom: 2px;
+        }
+
+        .chapter-subtitle {
+            font-size: 0.78rem;
+            color: var(--color-mountain-gray);
+        }
+
+        .chapter-info-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .chapter-stat {
+            font-size: 0.72rem;
+            color: var(--color-mountain-gray);
+            white-space: nowrap;
+        }
+
+        .chapter-arrow {
+            font-size: 0.7rem;
+            color: var(--color-primary-gold);
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .chapter-card.expanded .chapter-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* 章节展开内容 */
+        .chapter-body {
+            display: none;
+            padding: 0 20px 20px;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .chapter-card.expanded .chapter-body {
+            display: block;
+            animation: fadeInSection 0.3s ease;
+        }
+
+        .chapter-intro {
+            font-size: 0.86rem;
+            color: var(--color-ink-gray);
+            line-height: 1.7;
+            padding: 14px 0;
+            margin-bottom: 8px;
+        }
+
+        /* ---- 文字课时（入门篇） ---- */
+        .text-lesson {
+            margin-bottom: 12px;
+            padding: 16px 18px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.08);
+            transition: all 0.25s ease;
+        }
+
+        .text-lesson:hover {
+            background: rgba(255,255,255,0.75);
+            border-color: rgba(212, 175, 55, 0.2);
+        }
+
+        .text-lesson-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .text-lesson-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 7px;
+            background: rgba(212, 175, 55, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--color-primary-gold);
+            flex-shrink: 0;
+        }
+
+        .text-lesson-title {
+            font-family: var(--font-title);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-ink-darkgray);
+        }
+
+        .text-lesson-content {
+            font-size: 0.86rem;
+            color: var(--color-ink-gray);
+            line-height: 1.8;
+            margin-bottom: 10px;
+            padding-left: 34px;
+        }
+
+        .text-lesson-keypoint {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-left: 34px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, rgba(212,175,55,0.06), rgba(212,175,55,0.02));
+            border-left: 3px solid var(--color-primary-gold);
+            border-radius: 0 10px 10px 0;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--color-gold-darker);
+            line-height: 1.5;
+        }
+
+        /* ---- 图示区域（入门课时） ---- */
+        .text-lesson-diagrams {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 10px 0 6px 34px;
+            padding: 12px;
+            background: rgba(92,73,42,0.03);
+            border-radius: 12px;
+        }
+        .text-lesson-diagram-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .text-lesson-diagram-item svg {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .text-lesson-diagram-caption {
+            font-size: 0.76rem;
+            color: var(--color-ink-gray);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* ---- 学习笔记 ---- */
+        .notes-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+        .notes-header {
+            margin-bottom: 20px;
+        }
+        .notes-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--color-ink-darkgray);
+            margin: 0 0 4px;
+        }
+        .notes-subtitle {
+            font-size: 0.84rem;
+            color: var(--color-ink-gray);
+            margin: 0;
+        }
+        .notes-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            font-size: 0.82rem;
+            color: var(--color-ink-gray);
+        }
+        .notes-stats span { font-weight: 700; color: var(--color-ink-darkgray); }
+        .notes-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .notes-filter-pill {
+            padding: 6px 18px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(92,73,42,0.06);
+            color: var(--color-ink-gray);
+            transition: all 0.2s;
+        }
+        .notes-filter-pill:hover { background: rgba(212,175,55,0.12); }
+        .notes-filter-pill.active {
+            background: var(--color-primary-gold);
+            color: #fff;
+        }
+        .note-card {
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(92,73,42,0.08);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .note-card:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transform: translateY(-1px);
+        }
+        .note-card-top {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 10px;
+        }
+        .note-board-mini {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .note-board-mini svg { width: 100%; height: 100%; }
+        .note-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .note-maxim {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--color-ink-darkgray);
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .note-meta {
+            font-size: 0.78rem;
+            color: var(--color-ink-gray);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .note-explanation {
+            font-size: 0.82rem;
+            color: var(--color-ink-gray);
+            line-height: 1.6;
+            margin: 8px 0;
+            padding-left: 94px;
+        }
+        .note-concepts {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding-left: 94px;
+            margin-bottom: 10px;
+        }
+        .note-concept-tag {
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            background: rgba(59,130,246,0.08);
+            color: #3b82f6;
+        }
+        .note-actions {
+            display: flex;
+            gap: 8px;
+            padding-left: 94px;
+            align-items: center;
+        }
+        .note-assign-select {
+            padding: 5px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(92,73,42,0.15);
+            background: rgba(255,255,255,0.8);
+            font-size: 0.78rem;
+            color: var(--color-ink-darkgray);
+            cursor: pointer;
+        }
+        .note-btn {
+            padding: 5px 14px;
+            border-radius: 999px;
+            border: none;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .note-btn-assign {
+            background: var(--color-primary-gold);
+            color: #fff;
+        }
+        .note-btn-assign:hover { background: var(--color-gold-darker); }
+        .note-btn-dismiss {
+            background: rgba(92,73,42,0.06);
+            color: var(--color-ink-gray);
+        }
+        .note-btn-dismiss:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
+        .note-status-badge {
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .note-status-assigned { background: rgba(16,185,129,0.1); color: #10b981; }
+        .note-status-dismissed { background: rgba(239,68,68,0.06); color: #ef4444; }
+        .notes-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-ink-gray);
+            font-size: 0.9rem;
+        }
+
+        /* ---- 格言课时（进阶篇） ---- */
+        .lesson-timeline {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .lesson-timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, rgba(212,175,55,0.4), rgba(212,175,55,0.1));
+        }
+
+        .lesson-item {
+            position: relative;
+            margin-bottom: 16px;
+            padding: 16px 18px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .lesson-item:hover {
+            background: rgba(255,255,255,0.8);
+            border-color: rgba(212, 175, 55, 0.25);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        }
+
+        .lesson-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 22px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--color-primary-gold);
+            border: 2px solid rgba(248, 244, 237, 1);
+            box-shadow: 0 0 0 2px rgba(212,175,55,0.3);
+        }
+
+        .lesson-number {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--color-mountain-gray);
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+        }
+
+        .lesson-maxim {
+            font-family: var(--font-title);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--color-ink-darkgray);
+            line-height: 1.4;
+            margin-bottom: 8px;
+            padding-left: 14px;
+            border-left: 3px solid var(--color-primary-gold);
+        }
+
+        .lesson-explanation {
+            font-size: 0.84rem;
+            color: var(--color-ink-gray);
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        /* 棋谱佐证 */
+        .lesson-evidence {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            padding: 12px 14px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 6px;
+        }
+
+        .lesson-evidence:hover {
+            background: rgba(0,0,0,0.06);
+        }
+
+        .lesson-board-mini {
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #dcc594;
+        }
+
+        .lesson-board-mini svg { width: 100%; height: 100%; }
+
+        .lesson-evidence-info { flex: 1; font-size: 0.8rem; }
+
+        .lesson-evidence-players {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: var(--color-ink-gray);
+        }
+
+        .lesson-evidence-moves { display: flex; gap: 8px; margin-bottom: 4px; }
+
+        .le-badge { padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; }
+        .le-badge.a { background: rgba(212,175,55,0.12); color: var(--color-gold-darker); }
+        .le-badge.b { background: rgba(255,107,53,0.1); color: #c44a20; }
+
+        .lesson-evidence-stats { font-size: 0.75rem; color: var(--color-mountain-gray); }
+
+        .lesson-related { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+        .lesson-concept-tag {
+            padding: 3px 10px;
+            background: rgba(212, 175, 55, 0.08);
+            color: var(--color-gold-darker);
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .lesson-concept-tag:hover { background: rgba(212, 175, 55, 0.18); }
+
+        .lesson-no-scenario {
+            font-size: 0.8rem;
+            color: var(--color-mountain-gray);
+            padding: 12px;
+            background: rgba(0,0,0,0.02);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        /* 关联章节 */
+        .chapter-related {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(212, 175, 55, 0.08);
+            font-size: 0.78rem;
+            color: var(--color-mountain-gray);
+            flex-wrap: wrap;
+        }
+
+        .chapter-related-tag {
+            padding: 3px 10px;
+            background: rgba(212, 175, 55, 0.06);
+            color: var(--color-gold-darker);
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chapter-related-tag:hover {
+            background: rgba(212, 175, 55, 0.15);
+        }
+
+        /* 空状态 */
+        .gr-empty-state {
+            text-align: center;
+            padding: 80px var(--spacing-4);
+            color: var(--color-mountain-gray);
+        }
+
+        .gr-empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: rgba(212, 175, 55, 0.08);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: emptyFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes emptyFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        /* 棋谱详情 Modal - 保留 */
+        .gr-detail-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .gr-detail-modal.open {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .gr-detail-container {
+            background: rgba(248, 244, 237, 0.98);
+            border-radius: 24px;
+            border: 1.5px solid rgba(212, 175, 55, 0.3);
+            max-width: 960px;
+            width: 100%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+            animation: grDetailIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes grDetailIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .gr-detail-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gr-detail-title {
+            font-family: var(--font-title);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--color-gold-darker);
+        }
+
+        .gr-detail-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.06);
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--color-ink-gray);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gr-detail-close:hover { background: rgba(0,0,0,0.12); }
+
+        .gr-detail-body {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+        }
+
+        .gr-detail-board {
+            padding: 24px;
+            background: #dcc594;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0 0 0 24px;
+        }
+
+        .gr-detail-board svg { width: 360px; height: 360px; }
+
+        .gr-detail-info {
+            padding: 24px 28px;
+            overflow-y: auto;
+            max-height: 520px;
+        }
+
+        .gr-detail-section { margin-bottom: 20px; }
+
+        .gr-detail-section-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--color-gold-darker);
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .gr-detail-table { width: 100%; font-size: 0.85rem; }
+        .gr-detail-table tr { border-bottom: 1px solid rgba(0,0,0,0.04); }
+        .gr-detail-table td { padding: 6px 0; }
+        .gr-detail-table td:first-child { color: var(--color-mountain-gray); width: 80px; font-weight: 500; }
+        .gr-detail-table td:last-child { color: var(--color-ink-darkgray); font-weight: 600; }
+
+        .gr-move-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px 16px;
+            font-size: 0.82rem;
+            font-family: 'Courier New', 'Consolas', monospace;
+            max-height: 180px;
+            overflow-y: auto;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 8px;
+        }
+
+        .gr-move-entry { display: flex; gap: 6px; padding: 3px 4px; border-radius: 4px; align-items: center; }
+        .gr-move-entry:hover { background: rgba(212, 175, 55, 0.08); }
+        .gr-move-num { color: var(--color-mountain-gray); min-width: 24px; text-align: right; font-size: 0.75rem; }
+        .gr-move-stone-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .gr-move-stone-dot.b { background: #1a1a1a; }
+        .gr-move-stone-dot.w { background: #f0f0f0; border: 0.5px solid #bbb; }
+        .gr-move-coord { color: var(--color-ink-darkgray); font-weight: 600; }
+
+        .gr-detail-explanation {
+            font-size: 0.88rem;
+            color: var(--color-ink-gray);
+            line-height: 1.7;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(212,175,55,0.04), transparent);
+            border-left: 3px solid rgba(212, 175, 55, 0.3);
+            border-radius: 0 10px 10px 0;
+        }
+
+        .gr-concepts { display: flex; flex-wrap: wrap; gap: 6px; }
+        .gr-concept-tag { padding: 3px 10px; background: rgba(212,175,55,0.08); color: var(--color-gold-darker); border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .chapter-grid { grid-template-columns: 1fr; }
+            .gr-detail-body { grid-template-columns: 1fr; }
+            .gr-detail-board { border-radius: 0; }
+        }
+
+        footer {
+            background: rgba(26, 26, 26, 0.85);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border-top: 3px solid rgba(212, 175, 55, 0.3);
+            color: var(--color-mist-white);
+            padding: var(--spacing-6) var(--spacing-4);
+            text-align: center;
+            margin-top: var(--spacing-8);
+        }
+
+        footer a {
+            color: var(--color-gold-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            color: var(--color-primary-gold);
+        }
+
+        @media (max-width: 768px) {
+            .search-filter-section {
+                grid-template-columns: 1fr;
+            }
+
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .page-header h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景层 -->
+    <div class="mountain-mist"></div>
+    <div class="ink-mountain layer-3"></div>
+    <div class="ink-mountain layer-2"></div>
+    <div class="ink-mountain layer-1"></div>
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
+
+    <header>
+        <a href="testmain.html" class="logo">✨ Clarus</a>
+        <nav>
+            <a href="testmain.html">首页</a>
+            <a href="insight-library.html">洞察文库</a>
+            <a href="about.html">关于</a>
+        </nav>
+        <div class="auth-buttons">
+            <button class="btn-header">登录</button>
+            <button class="btn-header">注册</button>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <h1>洞察文库</h1>
+            <p>浏览和探索从 AI 分析中提取的知识洞察。收集、整理和学习关键原理。</p>
+        </div>
+    </div>
+
+    <!-- Section Tabs -->
+    <div class="section-tabs">
+        <button class="section-tab active" onclick="switchSection('insights')">洞察文库</button>
+        <button class="section-tab" onclick="switchSection('gamerecords')">围棋学堂</button>
+        <button class="section-tab" onclick="switchSection('notes')">学习笔记</button>
+    </div>
+
+    <!-- Section: Insights (original) -->
+    <div class="section-content active" id="section-insights">
+    <div class="search-filter-section">
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="搜索洞察...">
+            <button class="btn-search">🔍</button>
+        </div>
+        <div class="filters">
+            <div class="filter-title">领域</div>
+            <label class="filter-option">
+                <div class="checkbox"></div>
+                <span>围棋</span>
+            </label>
+            <label class="filter-option">
+                <div class="checkbox"></div>
+                <span>蛋白质折叠</span>
+            </label>
+            <label class="filter-option">
+                <div class="checkbox"></div>
+                <span>材料科学</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="insights-grid">
+        <a href="workspace-go.html" class="insight-card" style="text-decoration: none; color: inherit; display: block;">
+            <span class="insight-domain">围棋</span>
+            <h3 class="insight-title">AlphaGo 的棋形评估算法</h3>
+            <p class="insight-summary">探索 AlphaGo 如何通过神经网络评估棋盘局势，以及其中的启发式搜索算法。</p>
+            <div class="insight-meta">
+                <span>2024-01-15</span>
+                <span>⭐ 152</span>
+            </div>
+        </a>
+
+        <a href="workspace-protein.html" class="insight-card" style="text-decoration: none; color: inherit; display: block;">
+            <span class="insight-domain">蛋白质折叠</span>
+            <h3 class="insight-title">AlphaFold2 的结构预测方法</h3>
+            <p class="insight-summary">深入理解 AlphaFold2 如何利用多序列比对和注意力机制预测蛋白质3D结构。</p>
+            <div class="insight-meta">
+                <span>2024-01-14</span>
+                <span>⭐ 289</span>
+            </div>
+        </a>
+
+        <a href="workspace-go.html" class="insight-card" style="text-decoration: none; color: inherit; display: block;">
+            <span class="insight-domain">围棋</span>
+            <h3 class="insight-title">蒙特卡洛树搜索的优化</h3>
+            <p class="insight-summary">分析 MCTS 在棋类游戏中的应用，以及如何通过并行化提升搜索效率。</p>
+            <div class="insight-meta">
+                <span>2024-01-13</span>
+                <span>⭐ 98</span>
+            </div>
+        </a>
+
+        <a href="workspace-materials.html" class="insight-card" style="text-decoration: none; color: inherit; display: block;">
+            <span class="insight-domain">材料科学</span>
+            <h3 class="insight-title">材料特性预测的深度学习</h3>
+            <p class="insight-summary">探讨 GNN（图神经网络）在预测材料属性中的角色和优势。</p>
+            <div class="insight-meta">
+                <span>2024-01-12</span>
+                <span>⭐ 156</span>
+            </div>
+        </a>
+
+        <a href="workspace-protein.html" class="insight-card" style="text-decoration: none; color: inherit; display: block;">
+            <span class="insight-domain">蛋白质折叠</span>
+            <h3 class="insight-title">蛋白质相互作用的预测</h3>
+            <p class="insight-summary">了解如何预测两个蛋白质之间的相互作用及其功能影响。</p>
+            <div class="insight-meta">
+                <span>2024-01-11</span>
+                <span>⭐ 203</span>
+            </div>
+        </a>
+
+        <a href="workspace-go.html" class="insight-card" style="text-decoration: none; color: inherit; display: block;">
+            <span class="insight-domain">围棋</span>
+            <h3 class="insight-title">棋手风格的 AI 学习</h3>
+            <p class="insight-summary">分析 AI 如何学习和模仿不同职业棋手的独特下棋风格。</p>
+            <div class="insight-meta">
+                <span>2024-01-10</span>
+                <span>⭐ 124</span>
+            </div>
+        </a>
+    </div>
+
+    </div>
+    <!-- End Section: Insights -->
+
+    <!-- Section: Teaching System -->
+    <div class="section-content" id="section-gamerecords">
+        <div class="teaching-container" id="teachingContainer">
+            <!-- Learning Path Header -->
+            <div class="learning-path-header">
+                <div class="lp-title">围棋学习之路</div>
+                <div class="lp-subtitle">从规则入门到实战进阶，像读一本书一样系统学习围棋。每一章建立在前一章的基础上，格言从实战中提炼，棋谱作为佐证。</div>
+                <div class="lp-stats">
+                    <div class="lp-stat">
+                        <span class="lp-stat-value" id="totalLevels">0</span>
+                        <span class="lp-stat-label">学习阶段</span>
+                    </div>
+                    <div class="lp-stat">
+                        <span class="lp-stat-value" id="totalChapters">0</span>
+                        <span class="lp-stat-label">章节</span>
+                    </div>
+                    <div class="lp-stat">
+                        <span class="lp-stat-value" id="totalLessons">0</span>
+                        <span class="lp-stat-label">课时</span>
+                    </div>
+                    <div class="lp-stat">
+                        <span class="lp-stat-value" id="totalScenarios">0</span>
+                        <span class="lp-stat-label">实战棋谱</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level Filter -->
+            <div class="level-filter" id="levelFilter">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Book Content -->
+            <div id="bookContent">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+    <!-- End Section: Teaching System -->
+
+    <!-- Section: Learning Notes -->
+    <div class="section-content" id="section-notes">
+        <div class="notes-container">
+            <div class="notes-header">
+                <h2 class="notes-title">学习笔记</h2>
+                <p class="notes-subtitle">每次分析自动记录，在这里整理归类到教学章节</p>
+            </div>
+            <div class="notes-stats" id="notesStats"></div>
+            <div class="notes-filter" id="notesFilter">
+                <span class="notes-filter-pill active" onclick="filterNotes('pending')">待整理</span>
+                <span class="notes-filter-pill" onclick="filterNotes('assigned')">已归类</span>
+                <span class="notes-filter-pill" onclick="filterNotes('dismissed')">已忽略</span>
+                <span class="notes-filter-pill" onclick="filterNotes('all')">全部</span>
+            </div>
+            <div id="notesList">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+    <!-- End Section: Learning Notes -->
+
+    <!-- Game Record Detail Modal -->
+    <div class="gr-detail-modal" id="grDetailModal">
+        <div class="gr-detail-container">
+            <div class="gr-detail-header">
+                <div class="gr-detail-title" id="grDetailTitle">棋谱详情</div>
+                <button class="gr-detail-close" onclick="closeGameRecordDetail()">&times;</button>
+            </div>
+            <div class="gr-detail-body">
+                <div class="gr-detail-board" id="grDetailBoard">
+                    <!-- SVG board rendered here -->
+                </div>
+                <div class="gr-detail-info" id="grDetailInfo">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div style="margin-bottom: var(--spacing-2);">
+            <a href="#">关于我们</a> •
+            <a href="#">隐私政策</a> •
+            <a href="#">服务条款</a>
+        </div>
+        <p style="font-size: 0.85rem; color: #999;">© 2024 Clarus. 保留所有权利。</p>
+    </footer>
+
+    <script>
+        // 生成漂浮粒子
+        function createParticles() {
+            const particleCount = 25;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                document.body.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // =====================
+        // Section Tab Switching
+        // =====================
+        function switchSection(section) {
+            document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('section-' + section).classList.add('active');
+            if (section === 'gamerecords') renderTeachingSystem();
+            if (section === 'notes') renderLearningNotes();
+        }
+
+        // =====================
+        // 棋盘SVG生成器
+        // =====================
+        const COLS = 'ABCDEFGHJKLMNOPQRST';
+
+        function coordToLabel(x, y) { return COLS[x] + (19 - y); }
+
+        function generateBoardSVG(stones, size, options = {}) {
+            const { moveA, moveB, showNumbers } = options;
+            const padding = size * 0.06;
+            const gridSize = (size - padding * 2) / 18;
+            const starPoints = [[3,3],[9,3],[15,3],[3,9],[9,9],[15,9],[3,15],[9,15],[15,15]];
+            const uid = Math.random().toString(36).substr(2,5);
+
+            let svg = `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+            svg += `<rect width="${size}" height="${size}" fill="#dcc594" rx="4"/>`;
+
+            for (let i = 0; i < 19; i++) {
+                const pos = padding + i * gridSize;
+                svg += `<line x1="${padding}" y1="${pos}" x2="${size-padding}" y2="${pos}" stroke="#5a4a2a" stroke-width="0.5" opacity="0.6"/>`;
+                svg += `<line x1="${pos}" y1="${padding}" x2="${pos}" y2="${size-padding}" stroke="#5a4a2a" stroke-width="0.5" opacity="0.6"/>`;
+            }
+
+            for (const [sx, sy] of starPoints) {
+                svg += `<circle cx="${padding+sx*gridSize}" cy="${padding+sy*gridSize}" r="${gridSize*0.15}" fill="#5a4a2a" opacity="0.7"/>`;
+            }
+
+            const r = gridSize * 0.45;
+            if (stones) {
+                stones.forEach((s, idx) => {
+                    const cx = padding + s.x * gridSize;
+                    const cy = padding + s.y * gridSize;
+                    const label = coordToLabel(s.x, s.y);
+                    const isA = moveA && label === moveA;
+                    const isB = moveB && label === moveB;
+
+                    svg += s.color === 'black'
+                        ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#bg${uid})"/>`
+                        : `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#wg${uid})" stroke="#bbb" stroke-width="0.5"/>`;
+
+                    if (isA) {
+                        svg += `<circle cx="${cx}" cy="${cy}" r="${r+2}" fill="none" stroke="#d4af37" stroke-width="2" opacity="0.8"/>`;
+                        svg += `<text x="${cx}" y="${cy+1}" text-anchor="middle" dominant-baseline="central" font-size="${gridSize*0.4}" font-weight="700" fill="#d4af37">A</text>`;
+                    } else if (isB) {
+                        svg += `<circle cx="${cx}" cy="${cy}" r="${r+2}" fill="none" stroke="#ff6b35" stroke-width="2" opacity="0.8"/>`;
+                        svg += `<text x="${cx}" y="${cy+1}" text-anchor="middle" dominant-baseline="central" font-size="${gridSize*0.4}" font-weight="700" fill="#ff6b35">B</text>`;
+                    } else if (showNumbers) {
+                        const tc = s.color === 'black' ? '#ddd' : '#333';
+                        svg += `<text x="${cx}" y="${cy+1}" text-anchor="middle" dominant-baseline="central" font-size="${gridSize*0.32}" font-weight="600" fill="${tc}">${idx+1}</text>`;
+                    }
+                });
+            }
+
+            svg += `<defs>`;
+            svg += `<radialGradient id="bg${uid}" cx="35%" cy="35%"><stop offset="0%" stop-color="#555"/><stop offset="50%" stop-color="#1a1a1a"/><stop offset="100%" stop-color="#000"/></radialGradient>`;
+            svg += `<radialGradient id="wg${uid}" cx="35%" cy="35%"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></radialGradient>`;
+            svg += `</defs></svg>`;
+            return svg;
+        }
+
+        // =====================================================
+        // 小棋盘图示生成器 — 用于入门课时的棋形演示
+        // =====================================================
+        function generateDiagramSVG(config) {
+            const { stones = [], marks = [], boardSize = 7, size = 180, title = '', range } = config;
+            // range: { x:[min,max], y:[min,max] } 截取区域，默认全盘
+            const bsz = boardSize;
+            const padding = size * 0.1;
+            const gridSize = (size - padding * 2) / (bsz - 1);
+            const uid = 'dg' + Math.random().toString(36).substr(2, 5);
+
+            let svg = `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+            svg += `<rect width="${size}" height="${size}" fill="#dcc594" rx="6"/>`;
+
+            // Grid lines
+            for (let i = 0; i < bsz; i++) {
+                const pos = padding + i * gridSize;
+                svg += `<line x1="${padding}" y1="${pos}" x2="${size - padding}" y2="${pos}" stroke="#5a4a2a" stroke-width="0.6" opacity="0.5"/>`;
+                svg += `<line x1="${pos}" y1="${padding}" x2="${pos}" y2="${size - padding}" stroke="#5a4a2a" stroke-width="0.6" opacity="0.5"/>`;
+            }
+
+            // Star points for 9x9
+            if (bsz === 9) {
+                const sp9 = [[2,2],[6,2],[4,4],[2,6],[6,6]];
+                sp9.forEach(([sx,sy]) => {
+                    svg += `<circle cx="${padding+sx*gridSize}" cy="${padding+sy*gridSize}" r="${gridSize*0.12}" fill="#5a4a2a" opacity="0.6"/>`;
+                });
+            }
+
+            const r = gridSize * 0.42;
+
+            // Defs for stone gradients
+            svg += `<defs>`;
+            svg += `<radialGradient id="bd${uid}" cx="35%" cy="35%"><stop offset="0%" stop-color="#555"/><stop offset="50%" stop-color="#1a1a1a"/><stop offset="100%" stop-color="#000"/></radialGradient>`;
+            svg += `<radialGradient id="wd${uid}" cx="35%" cy="35%"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></radialGradient>`;
+            svg += `</defs>`;
+
+            // Stones
+            stones.forEach((s, idx) => {
+                const cx = padding + s.x * gridSize;
+                const cy = padding + s.y * gridSize;
+                svg += s.color === 'black'
+                    ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#bd${uid})"/>`
+                    : `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#wd${uid})" stroke="#bbb" stroke-width="0.5"/>`;
+                // Number label on stone
+                if (s.label) {
+                    const tc = s.color === 'black' ? '#eee' : '#222';
+                    svg += `<text x="${cx}" y="${cy + 1}" text-anchor="middle" dominant-baseline="central" font-size="${gridSize * 0.38}" font-weight="700" fill="${tc}">${s.label}</text>`;
+                }
+            });
+
+            // Marks (liberties, capture points, arrows, etc.)
+            marks.forEach(m => {
+                const cx = padding + m.x * gridSize;
+                const cy = padding + m.y * gridSize;
+                if (m.type === 'liberty') {
+                    // Small green circle for liberty
+                    svg += `<circle cx="${cx}" cy="${cy}" r="${gridSize * 0.18}" fill="none" stroke="#10b981" stroke-width="2" opacity="0.85"/>`;
+                } else if (m.type === 'capture') {
+                    // Red X for capture point
+                    const d = gridSize * 0.2;
+                    svg += `<line x1="${cx-d}" y1="${cy-d}" x2="${cx+d}" y2="${cy+d}" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>`;
+                    svg += `<line x1="${cx+d}" y1="${cy-d}" x2="${cx-d}" y2="${cy+d}" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>`;
+                } else if (m.type === 'territory') {
+                    // Small filled square for territory
+                    const d = gridSize * 0.15;
+                    svg += `<rect x="${cx-d}" y="${cy-d}" width="${d*2}" height="${d*2}" fill="${m.color || '#3b82f6'}" opacity="0.5" rx="1"/>`;
+                } else if (m.type === 'arrow') {
+                    // Arrow from this point in direction
+                    const tx = padding + m.tx * gridSize;
+                    const ty = padding + m.ty * gridSize;
+                    svg += `<line x1="${cx}" y1="${cy}" x2="${tx}" y2="${ty}" stroke="#d4af37" stroke-width="2" marker-end="url(#ah${uid})"/>`;
+                } else if (m.type === 'label') {
+                    svg += `<text x="${cx}" y="${cy + 1}" text-anchor="middle" dominant-baseline="central" font-size="${gridSize * 0.36}" font-weight="700" fill="${m.color || '#d4af37'}">${m.text}</text>`;
+                } else if (m.type === 'forbidden') {
+                    // Forbidden point (no entry)
+                    svg += `<circle cx="${cx}" cy="${cy}" r="${gridSize * 0.22}" fill="none" stroke="#ef4444" stroke-width="2" opacity="0.8"/>`;
+                    const d = gridSize * 0.14;
+                    svg += `<line x1="${cx-d}" y1="${cy}" x2="${cx+d}" y2="${cy}" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>`;
+                }
+            });
+
+            // Title
+            if (title) {
+                svg += `<text x="${size/2}" y="${size - 3}" text-anchor="middle" font-size="${size*0.055}" fill="#5a4a2a" opacity="0.7">${title}</text>`;
+            }
+
+            svg += `</svg>`;
+            return svg;
+        }
+
+        // =====================================================
+        // 围棋教学体系 — 完整课程数据
+        // 参考：《围棋入门》《棋经十三篇》《围棋格言》体系
+        // =====================================================
+        const GO_CURRICULUM = {
+            levels: [
+                {
+                    id: 'beginner',
+                    name: '入门篇',
+                    subtitle: '从零开始，认识围棋的世界',
+                    icon: '🌱',
+                    color: '#10b981',
+                    chapters: [
+                        {
+                            id: 'rules', num: 1, name: '围棋规则', icon: '📐',
+                            subtitle: '棋盘、落子、气、提子、打劫、胜负',
+                            type: 'lessons',
+                            desc: '围棋是两人对弈的策略游戏，规则极其简洁，却能演化出无穷变化。学习规则是一切的起点。',
+                            lessons: [
+                                { title: '棋盘与棋子', content: '围棋使用 19×19 的棋盘（初学者可用 9×9 或 13×13），横竖线交叉形成 361 个交叉点。黑白双方各执一色棋子，轮流将棋子放在空的交叉点上。黑棋先行。棋子一旦落下就不能移动，只能被"提走"。', keyPoint: '棋子下在交叉点上，不是格子里。落子后不可移动。' },
+                                { title: '气 — 棋子的生命线', content: '每颗棋子上下左右相邻的空交叉点叫做"气"。棋盘中央的棋子最多 4 口气，边上 3 口，角上 2 口。同色棋子紧挨在一起会形成一"块"，共享所有的气。一块棋的气越多，就越安全。', keyPoint: '气 = 相邻的空点。气被堵完 = 死亡。同色相连共享气。',
+                                    diagrams: [
+                                        { caption: '中央：4口气', config: { boardSize: 7, size: 150, stones: [{x:3,y:3,color:'black'}], marks: [{x:3,y:2,type:'liberty'},{x:3,y:4,type:'liberty'},{x:2,y:3,type:'liberty'},{x:4,y:3,type:'liberty'}] }},
+                                        { caption: '边上：3口气', config: { boardSize: 7, size: 150, stones: [{x:0,y:3,color:'black'}], marks: [{x:0,y:2,type:'liberty'},{x:0,y:4,type:'liberty'},{x:1,y:3,type:'liberty'}] }},
+                                        { caption: '两子连块：6口气', config: { boardSize: 7, size: 150, stones: [{x:3,y:3,color:'black'},{x:4,y:3,color:'black'}], marks: [{x:2,y:3,type:'liberty'},{x:5,y:3,type:'liberty'},{x:3,y:2,type:'liberty'},{x:4,y:2,type:'liberty'},{x:3,y:4,type:'liberty'},{x:4,y:4,type:'liberty'}] }}
+                                    ]
+                                },
+                                { title: '提子 — 吃掉对方', content: '当一方下子后使对方某块棋的气变为零（即所有相邻空点都被占满），这块棋就被"提掉"——从棋盘上拿走。提子是围棋中唯一消灭对方棋子的方式。', keyPoint: '堵住对方所有的气 → 提掉（吃掉）对方的子。',
+                                    diagrams: [
+                                        { caption: '白只剩1口气', config: { boardSize: 7, size: 150, stones: [{x:3,y:2,color:'black'},{x:2,y:3,color:'black'},{x:4,y:3,color:'black'},{x:3,y:3,color:'white'}], marks: [{x:3,y:4,type:'liberty'}] }},
+                                        { caption: '黑在此落子→提掉白', config: { boardSize: 7, size: 150, stones: [{x:3,y:2,color:'black'},{x:2,y:3,color:'black'},{x:4,y:3,color:'black'},{x:3,y:3,color:'white'}], marks: [{x:3,y:4,type:'capture'}] }}
+                                    ]
+                                },
+                                { title: '禁入点与自杀', content: '不能在没有气的位置落子（自杀），除非落子的同时能提掉对方的棋子。这条规则看似简单，却是很多精妙手筋的基础。', keyPoint: '不能自杀，但"先手提子"例外。',
+                                    diagrams: [
+                                        { caption: '×处为禁入点（自杀）', config: { boardSize: 7, size: 150, stones: [{x:3,y:2,color:'black'},{x:2,y:3,color:'black'},{x:4,y:3,color:'black'},{x:3,y:4,color:'black'}], marks: [{x:3,y:3,type:'forbidden'}] }}
+                                    ]
+                                },
+                                { title: '打劫', content: '当双方可以反复互提一子时形成"劫"。规则规定：被提后不能立即提回，必须先在别处下一手（找"劫材"），迫使对方应对后才能回来提劫。打劫是围棋独特的战术，经常影响全局胜负。', keyPoint: '劫：不能立即提回，必须先在别处下一手。' },
+                                { title: '终局与胜负', content: '双方都认为没有可争之地时，终局数目。每方得分 = 围住的空交叉点（目）+ 提掉的对方棋子数。黑棋因先手优势需贴目（中国规则贴 3¾子，日韩规则贴 6.5 目）。得分多者获胜。', keyPoint: '围地多者获胜。黑棋有先手优势，需要贴目。' },
+                            ]
+                        },
+                        {
+                            id: 'capture-techniques', num: 2, name: '吃子技巧', icon: '⚡',
+                            subtitle: '征子、枷、接不归、倒扑',
+                            type: 'lessons',
+                            desc: '学会了提子规则后，下一步是掌握各种"吃子手段"。这些是围棋战斗的基本武器。',
+                            lessons: [
+                                { title: '征子（梯子）', content: '利用棋盘边界，每步都"叫吃"（让对方只剩 1 口气），对方只能向一个方向逃跑，最终撞到边界被吃。征子的形状像一条斜线，是最常见的吃子手段。判断征子能否成功的关键：逃跑路线上有没有对方的"接应子"。', keyPoint: '征子前先看清逃跑路线！有接应子 → 征子失败。',
+                                    diagrams: [
+                                        { caption: '征子（梯形追杀）', config: { boardSize: 9, size: 180, stones: [
+                                            {x:4,y:3,color:'white'},{x:5,y:3,color:'black',label:'1'},
+                                            {x:5,y:4,color:'white'},{x:6,y:4,color:'black',label:'3'},
+                                            {x:6,y:5,color:'white'},{x:7,y:5,color:'black',label:'5'},
+                                            {x:3,y:3,color:'black'},{x:4,y:4,color:'black'}
+                                        ], marks: [{x:7,y:6,type:'capture'}] }}
+                                    ]
+                                },
+                                { title: '枷（罩）', content: '不紧贴着叫吃，而是隔一路"罩住"对方。对方无论往哪个方向逃都会被吃。枷比征子更高效——一步到位，而且不受接应子的影响。', keyPoint: '枷 = 隔一路的包围，比征子更干净、更难逃脱。',
+                                    diagrams: [
+                                        { caption: '枷：隔一路罩住', config: { boardSize: 7, size: 150, stones: [
+                                            {x:3,y:3,color:'white'},
+                                            {x:2,y:3,color:'black'},{x:4,y:3,color:'black'},
+                                            {x:3,y:5,color:'black',label:'枷'}
+                                        ], marks: [] }}
+                                    ]
+                                },
+                                { title: '接不归', content: '对方的棋看似可以连回去（接上），但实际上连回后气不够，仍然会被吃。关键是计算"接回后"整块棋的气数。这是初学者最常误判的情况。', keyPoint: '能"接"≠ 能"活"。要算清接回后整块棋有几口气。' },
+                                { title: '倒扑', content: '故意送一子或几子给对方吃，对方提子后棋形上出现新的弱点，反而被我方"反提"或"打吃"。倒扑是以退为进的精妙手筋，在死活题中频繁出现。', keyPoint: '主动送吃 → 对方提子 → 形状变化 → 反杀！',
+                                    diagrams: [
+                                        { caption: '黑1扑入（送吃）', config: { boardSize: 7, size: 150, stones: [
+                                            {x:2,y:2,color:'white'},{x:3,y:2,color:'white'},{x:4,y:2,color:'white'},
+                                            {x:2,y:3,color:'white'},{x:4,y:3,color:'white'},
+                                            {x:2,y:4,color:'black'},{x:3,y:4,color:'black'},{x:4,y:4,color:'black'},
+                                            {x:1,y:3,color:'black'},{x:5,y:3,color:'black'},
+                                            {x:3,y:3,color:'black',label:'1'}
+                                        ], marks: [] }},
+                                        { caption: '白提→黑反提2子', config: { boardSize: 7, size: 150, stones: [
+                                            {x:2,y:2,color:'white'},{x:3,y:2,color:'white'},{x:4,y:2,color:'white'},
+                                            {x:2,y:3,color:'white'},{x:3,y:3,color:'white'},{x:4,y:3,color:'white'},
+                                            {x:2,y:4,color:'black'},{x:3,y:4,color:'black'},{x:4,y:4,color:'black'},
+                                            {x:1,y:3,color:'black'},{x:5,y:3,color:'black'}
+                                        ], marks: [{x:3,y:4,type:'capture'}] }}
+                                    ]
+                                },
+                                { title: '扑与挤', content: '"扑"是往对方棋块内部下子，缩小对方的眼位空间。"挤"是利用对方棋形的弱点，在薄弱处打入。两者都是攻击对方眼位的重要手段。', keyPoint: '扑 = 往里塞，缩小眼位。挤 = 利用弱点打入。' },
+                            ]
+                        },
+                        {
+                            id: 'life-death', num: 3, name: '死活基础', icon: '👁',
+                            subtitle: '眼、活棋、死棋、基本死活形',
+                            type: 'lessons',
+                            desc: '"死活"是围棋的核心。一块棋是死是活，决定了几十目的得失。掌握死活是从入门到初级的必经之路。',
+                            lessons: [
+                                { title: '什么是"眼"', content: '被同色棋子完全包围的空交叉点叫做"眼"。真眼的特征是：对方无法在眼位落子（因为落子后自己没气，属于自杀）。眼是棋块的"呼吸空间"。', keyPoint: '眼 = 被己方棋子完全围住的空点，对方无法落子。' },
+                                { title: '两眼活棋 — 围棋的生存法则', content: '有两个真眼的棋块永远不会被吃掉。因为对方不可能同时填两个眼（填一个就是自杀）。这是围棋最核心的概念：做活 = 做出两个眼。所有的死活题、攻防战斗，归根到底都围绕着"能不能做出两眼"展开。', keyPoint: '两眼 = 绝对安全。这是围棋生存的根本法则。',
+                                    diagrams: [
+                                        { caption: '两眼活棋：永远吃不掉', config: { boardSize: 9, size: 180, stones: [
+                                            {x:1,y:1,color:'black'},{x:2,y:1,color:'black'},{x:3,y:1,color:'black'},{x:4,y:1,color:'black'},{x:5,y:1,color:'black'},
+                                            {x:1,y:2,color:'black'},{x:3,y:2,color:'black'},{x:5,y:2,color:'black'},
+                                            {x:1,y:3,color:'black'},{x:2,y:3,color:'black'},{x:3,y:3,color:'black'},{x:4,y:3,color:'black'},{x:5,y:3,color:'black'},
+                                            {x:1,y:0,color:'white'},{x:2,y:0,color:'white'},{x:3,y:0,color:'white'},{x:4,y:0,color:'white'},{x:5,y:0,color:'white'},
+                                            {x:0,y:1,color:'white'},{x:0,y:2,color:'white'},{x:0,y:3,color:'white'},
+                                            {x:6,y:1,color:'white'},{x:6,y:2,color:'white'},{x:6,y:3,color:'white'},
+                                            {x:1,y:4,color:'white'},{x:2,y:4,color:'white'},{x:3,y:4,color:'white'},{x:4,y:4,color:'white'},{x:5,y:4,color:'white'}
+                                        ], marks: [{x:2,y:2,type:'label',text:'眼',color:'#10b981'},{x:4,y:2,type:'label',text:'眼',color:'#10b981'}] }}
+                                    ]
+                                },
+                                { title: '假眼', content: '看起来像眼，但实际上对方可以通过吃掉关键棋子来破坏的眼叫"假眼"。判断方法：在棋盘中央，眼角的 4 个对角位如果有 2 个以上是对方的棋子，就是假眼。在边和角上标准更严。', keyPoint: '真假眼看对角：中央≥2个敌子=假眼，边上≥1个=假眼。' },
+                                { title: '基本死活形', content: '必须背记的基本形：\n• 直二、弯二、方块四 — 死形（做不出两眼）\n• 直三 — 先手活（谁先下谁有利）\n• 弯三 — 死形（被点中间必死）\n• 直四、弯四 — 活形（天然两眼）\n• 丁四、刀五 — 先手活\n• 花五、花六 — 活形\n这些是一切死活计算的基础模块。', keyPoint: '背熟基本死活形，实战中一眼就能判断生死。' },
+                                { title: '杀棋与做活', content: '攻方的目标是缩小对方的眼位空间，使其无法做出两眼。守方的目标是扩大眼位空间，确保两眼。攻守双方的技巧都来源于对"眼位大小"的精确计算。常见手筋：点眼、挖眼、扑、立。', keyPoint: '攻 = 缩小眼位，守 = 扩大眼位。关键都是算清楚。' },
+                            ]
+                        },
+                        {
+                            id: 'opening-basics', num: 4, name: '布局入门', icon: '🗺',
+                            subtitle: '金角银边草肚皮、星位与小目、挂角守角',
+                            type: 'lessons',
+                            desc: '布局是棋局的开端，决定了全局的骨架。好的布局能让你在中盘战斗中占据有利位置。',
+                            lessons: [
+                                { title: '金角银边草肚皮', content: '围棋中围地的效率：角上最高（两面有边界帮忙），其次是边（一面有边界），最差是中腹（四面无边界，需要大量棋子才能围住）。因此开局基本原则是先占角，再拓边，最后争中腹。', keyPoint: '效率排序：角 > 边 > 中腹。开局先占角！' },
+                                { title: '星位、小目与三三', content: '开局第一手的常见选点：\n• 星位（4-4）：速度快，注重外势和发展潜力，现代AI最推荐\n• 小目（3-4）：偏重实地，定式变化丰富，传统下法\n• 三三（3-3）：直接确保角部实地，但外势薄\n• 目外（4-5）：追求外势，变化激烈\n现代围棋中星位使用率最高，因为灵活度高、变化多。', keyPoint: '星位 = 速度外势，小目 = 实地稳健，三三 = 即刻围角。' },
+                                { title: '挂角与守角', content: '对方占了角后，我方要去"挂角"——在旁边落子限制其发展。如果不想被挂，可以先"守角"。挂角的方向和位置（高挂、低挂、一间挂、二间挂）会影响后续变化。这是布局最基本的攻防。', keyPoint: '不让对方舒服地独占角 → 挂角！或者自己先守角。' },
+                                { title: '拆边与大场', content: '占完角后，下一步是"拆边"——沿着边路展开势力。拆二（隔两路）最坚实，拆三较宽但也较薄。棋盘上价值最大的空位叫"大场"，抢到大场会在后续战斗中占优。', keyPoint: '占角 → 挂角/守角 → 拆边抢大场，这是布局的节奏。' },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    id: 'elementary',
+                    name: '初级篇',
+                    subtitle: '理解棋形，提升效率',
+                    icon: '📖',
+                    color: '#3b82f6',
+                    chapters: [
+                        {
+                            id: 'shape', num: 5, name: '棋形与效率', icon: '💎',
+                            subtitle: '好形与愚形、常见棋形',
+                            type: 'lessons',
+                            desc: '好的棋形意味着每颗子都发挥最大效率。识别好形和愚形是提升棋力的关键一步。',
+                            relatedChapters: ['cut-connect', 'territory-influence'],
+                            lessons: [
+                                { title: '空三角 — 最典型的愚形', content: '三颗同色棋子排成"L"形，中间的交叉点是空的，这就是"空三角"。空三角浪费了一步棋——三颗子只围出了本来两颗子就能围出的空间。在绝大多数情况下，空三角都是效率低下的愚形。', keyPoint: '空三角 = 浪费一手棋。见到空三角，说明棋形出了问题。',
+                                    diagrams: [
+                                        { caption: '空三角（愚形）', config: { boardSize: 7, size: 150, stones: [{x:3,y:2,color:'black'},{x:3,y:3,color:'black'},{x:4,y:3,color:'black'}], marks: [{x:4,y:2,type:'label',text:'空',color:'#ef4444'}] }},
+                                        { caption: '正确：尖（好形）', config: { boardSize: 7, size: 150, stones: [{x:3,y:3,color:'black'},{x:4,y:2,color:'black'}], marks: [] }}
+                                    ]
+                                },
+                                { title: '虎口（挂角虎、飞压虎）', content: '"虎口"是两颗棋子斜对角放置，中间的空点被保护。虎口是围棋中最强大的防守棋形之一——对方如果走进虎口，就会被三面包围，容易被吃。', keyPoint: '虎口 = 斜对角保护中间点。坚实而有弹性的好形。',
+                                    diagrams: [
+                                        { caption: '虎口棋形', config: { boardSize: 7, size: 150, stones: [{x:3,y:2,color:'black'},{x:2,y:3,color:'black'},{x:4,y:3,color:'black'}], marks: [{x:3,y:3,type:'label',text:'虎',color:'#d4af37'}] }}
+                                    ]
+                                },
+                                { title: '竹节连接（双）', content: '两组各两颗棋子平行排列，形如竹节。这是最坚实的连接方式——对方无论从哪个方向切入都无法切断。比"一间跳"更安全。', keyPoint: '竹节 = 绝对切不断的连接。最安全的连接棋形。' },
+                                { title: '尖、飞、一间跳', content: '• 尖：斜向前进一步，灵活但速度慢\n• 飞：斜向跨一路，速度快但可被"刺穿"\n• 一间跳：直线跨一路，速度与安全的平衡\n这三种行棋方式各有优劣，要根据周围情况选择。', keyPoint: '尖=坚实慢，飞=快但薄，跳=中庸平衡。' },
+                            ],
+                            maxims: [
+                                {
+                                    text: '碰定式后的隐患要及时补强：看似安定的棋形可能暗藏切断点',
+                                    explanation: '定式结束后双方看似都安定了，但有些棋形中存在隐蔽的切断点。高段棋手会在适当时机补上这些弱点，而业余棋手往往忽视这些隐患。',
+                                    scenarios: [
+                                        {
+                                            blackPlayer: '柯洁', whitePlayer: 'AlphaGo', moveA: 'Q14', moveB: 'D10',
+                                            winrateDelta: 0.07, leadDelta: 3.8,
+                                            detail: 'Q14补强了上边和右边的连接处，避免白棋从Q13方向切断',
+                                            stones: [{x:15,y:3,color:'black'},{x:3,y:3,color:'white'},{x:15,y:15,color:'black'},{x:3,y:15,color:'white'},{x:5,y:2,color:'black'},{x:2,y:5,color:'white'},{x:9,y:3,color:'black'},{x:14,y:12,color:'white'},{x:15,y:4,color:'black'},{x:14,y:12,color:'white'},{x:14,y:15,color:'black'},{x:15,y:11,color:'white'},{x:15,y:14,color:'black'},{x:14,y:10,color:'white'},{x:13,y:15,color:'black'},{x:16,y:14,color:'white'}],
+                                        },
+                                    ],
+                                    concepts: ['补棋', '棋形', '先手', '隐患'],
+                                },
+                            ]
+                        },
+                        {
+                            id: 'cut-connect', num: 6, name: '断与连', icon: '⚔',
+                            subtitle: '切断与连接的攻防要领',
+                            type: 'maxims',
+                            desc: '切断对手的薄弱连接，或保护己方的联络。攻防的核心在于找到棋形中"一间跳"、"飞"等连接的弱点。',
+                            relatedChapters: ['shape', 'territory-influence'],
+                            maxims: [
+                                {
+                                    text: '切断对手薄弱连接，迫使两块棋同时缺乏根据地',
+                                    explanation: '当对手两块棋之间只有一间跳或飞的薄弱连接时，果断挖入切断。被分断的两块棋如果都缺乏眼位，将陷入双重困境。',
+                                    scenarios: [
+                                        { blackPlayer: '李世石', whitePlayer: 'AlphaGo', moveA: 'L8', moveB: 'Q5', winrateDelta: 0.15, leadDelta: 9.5, detail: 'L8挖入黑棋中腹大块的连接处，黑棋的一间跳连接被切断后两块都没有根据地', stones: [{x:15,y:3,color:'black'},{x:3,y:15,color:'white'},{x:2,y:3,color:'black'},{x:15,y:15,color:'white'},{x:14,y:3,color:'black'},{x:14,y:15,color:'white'},{x:13,y:4,color:'black'},{x:15,y:4,color:'white'},{x:2,y:13,color:'black'},{x:5,y:15,color:'white'},{x:12,y:3,color:'black'},{x:2,y:16,color:'white'},{x:9,y:3,color:'black'},{x:16,y:2,color:'white'},{x:15,y:5,color:'black'},{x:14,y:2,color:'white'},{x:3,y:9,color:'black'},{x:4,y:2,color:'white'},{x:12,y:13,color:'black'},{x:4,y:12,color:'white'},{x:5,y:12,color:'black'},{x:3,y:12,color:'white'},{x:5,y:11,color:'black'},{x:5,y:13,color:'white'},{x:4,y:11,color:'black'},{x:4,y:13,color:'white'},{x:6,y:11,color:'black'},{x:5,y:14,color:'white'},{x:6,y:12,color:'black'},{x:5,y:10,color:'white'}] },
+                                        { blackPlayer: '申真谞', whitePlayer: 'AI复盘', moveA: 'G7', moveB: 'D3', winrateDelta: 0.12, leadDelta: 7.0, detail: '下方黑棋两块之间飞的连接被白棋一碰即断，双方都只有一口气的紧张局面', stones: [{x:3,y:3,color:'black'},{x:15,y:3,color:'white'},{x:3,y:15,color:'black'},{x:15,y:15,color:'white'},{x:6,y:10,color:'black'},{x:6,y:12,color:'white'},{x:8,y:11,color:'black'},{x:7,y:13,color:'white'},{x:5,y:11,color:'black'},{x:8,y:13,color:'white'}] },
+                                    ],
+                                    concepts: ['手筋', '切断', '攻杀', '根据地'],
+                                },
+                                {
+                                    text: '连接不仅是物理上的相邻，更是气和眼位的共享',
+                                    explanation: '即使两块棋之间有一步棋的距离，如果对方无法有效切断（因为切断后自身也会陷入危险），这种连接就是安全的。判断连接强度的关键是双方的气数对比。',
+                                    scenarios: [
+                                        { blackPlayer: '柯洁', whitePlayer: 'AlphaGo', moveA: 'Q14', moveB: 'D10', winrateDelta: 0.07, leadDelta: 3.8, detail: 'Q14补强了Q16黑子和下方黑棋的联络，看似缓手实则避免了白棋Q13冲断的严厉手段', stones: [{x:15,y:3,color:'black'},{x:3,y:3,color:'white'},{x:15,y:15,color:'black'},{x:3,y:15,color:'white'},{x:5,y:2,color:'black'},{x:2,y:5,color:'white'},{x:9,y:3,color:'black'},{x:14,y:12,color:'white'},{x:15,y:4,color:'black'},{x:14,y:12,color:'white'},{x:14,y:15,color:'black'},{x:15,y:11,color:'white'},{x:15,y:14,color:'black'},{x:14,y:10,color:'white'},{x:13,y:15,color:'black'},{x:16,y:14,color:'white'}] },
+                                    ],
+                                    concepts: ['补棋', '联络', '气数', '安全'],
+                                },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    id: 'intermediate',
+                    name: '中级篇',
+                    subtitle: '攻防之道，掌握全局战略',
+                    icon: '⚔',
+                    color: '#f59e0b',
+                    chapters: [
+                        {
+                            id: 'territory-influence', num: 7, name: '封锁与外势', icon: '🏔',
+                            subtitle: '厚势的运用与方向感',
+                            type: 'maxims',
+                            desc: '封锁对方的出路，用外势影响全局。厚势的价值在于控制方向，而非直接围地。',
+                            relatedChapters: ['cut-connect', 'invasion-timing'],
+                            maxims: [
+                                {
+                                    text: '封锁方向比吃子更重要：让对手委曲做活，换取中央厚势',
+                                    explanation: '不要执着于吃掉对方的棋子。让对方在边上委曲做活（小活），自己获得的中央厚势对全局的影响远大于几目边空。',
+                                    scenarios: [
+                                        { blackPlayer: '用户', whitePlayer: 'Clarus AI', moveA: 'N11', moveB: 'R3', winrateDelta: 0.10, leadDelta: 6.0, detail: 'N11封锁白棋逃出路线，白棋只能在边上小活，黑棋中腹厚势影响全局', stones: [{x:15,y:3,color:'black'},{x:3,y:3,color:'white'},{x:15,y:15,color:'black'},{x:3,y:15,color:'white'},{x:5,y:16,color:'black'},{x:2,y:13,color:'white'},{x:9,y:15,color:'black'},{x:15,y:5,color:'white'},{x:15,y:8,color:'black'},{x:14,y:5,color:'white'},{x:13,y:3,color:'black'},{x:15,y:11,color:'white'},{x:15,y:7,color:'black'},{x:15,y:14,color:'white'},{x:14,y:7,color:'black'},{x:16,y:8,color:'white'},{x:14,y:6,color:'black'},{x:15,y:9,color:'white'},{x:12,y:5,color:'black'}] },
+                                    ],
+                                    concepts: ['封锁', '外势', '厚势', '方向'],
+                                },
+                                {
+                                    text: '厚势不要靠近：已有外势时，向远处发展才能最大化价值',
+                                    explanation: '厚势的价值在于"辐射"——对远处的影响。如果在厚势旁边下子，等于浪费了外势的远程影响力。正确的做法是在棋盘另一侧利用厚势的压力。',
+                                    scenarios: [],
+                                    concepts: ['厚势', '效率', '大场', '棋理'],
+                                },
+                            ]
+                        },
+                        {
+                            id: 'attack-defense', num: 8, name: '攻击与防守', icon: '🛡',
+                            subtitle: '攻彼顾我、声东击西',
+                            type: 'lessons',
+                            desc: '围棋的攻防不是简单的追杀，而是通过攻击获取利益。"攻击是最好的防守"在围棋中有着深刻的含义。',
+                            relatedChapters: ['cut-connect', 'territory-influence'],
+                            lessons: [
+                                { title: '攻击的目的不是杀棋', content: '初学者常见误区：以为攻击就是要杀死对方。实际上，高手攻击的目的是通过追赶对方获取利益——围空、建立厚势、先手抢大场。对方如果能勉强活出来（小活），你已经赚到了。', keyPoint: '攻击的目的 = 获利，不是杀棋。能杀则杀，不能杀就转化。' },
+                                { title: '攻彼顾我', content: '攻击之前先检查自己有没有弱点。如果自己的棋也不安全，贸然攻击可能反被对方反击。"攻彼顾我"是《棋经十三篇》的核心思想之一。', keyPoint: '先看自己安不安全，再去攻击别人。' },
+                                { title: '宽攻与紧攻', content: '宽攻：保持一定距离压迫对方，让对方难以做出好形。适用于自己外围有配合的情况。紧攻：贴着对方下，不给喘息空间。适用于对方只有一口气或必须立即处理的情况。', keyPoint: '周围有配合 → 宽攻围空。对方很弱 → 紧攻追杀。' },
+                                { title: '腾挪与弃子', content: '当己方棋子陷入不利位置时，不要执着于每颗子都要救出来。通过"腾挪"——弃掉部分棋子换取外围好形和先手——是高级的处理方式。', keyPoint: '不要恋子！弃掉小的，换取大的。' },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    id: 'advanced',
+                    name: '高级篇',
+                    subtitle: '全局判断，精准把握时机',
+                    icon: '🏆',
+                    color: '#ef4444',
+                    chapters: [
+                        {
+                            id: 'invasion-timing', num: 9, name: '侵入时机', icon: '🎯',
+                            subtitle: '三三侵入、打入、浅消',
+                            type: 'maxims',
+                            desc: '侵入对方阵地的最佳时刻取决于外势的完整程度。过早侵入会被围歼，过晚则对方实地已经巩固。',
+                            relatedChapters: ['territory-influence', 'attack-defense'],
+                            maxims: [
+                                {
+                                    text: '三三侵入要看时机：外势未合围时果断深入',
+                                    explanation: '对方如果在星位构筑外势但尚未完全围住角部，此时三三侵入可以做活并破坏模样。关键判断点是对方的"拦路石"是否到位。',
+                                    scenarios: [
+                                        { blackPlayer: '朴廷桓', whitePlayer: 'AlphaGo Master', moveA: 'C17', moveB: 'R7', winrateDelta: 0.08, leadDelta: 4.2, detail: 'C17侵入时机恰好：黑棋F17和J16还没完全围住角部，三三还能做活并破坏模样', stones: [{x:15,y:3,color:'black'},{x:3,y:3,color:'white'},{x:15,y:15,color:'black'},{x:3,y:15,color:'white'},{x:5,y:2,color:'black'},{x:2,y:5,color:'white'},{x:14,y:3,color:'black'},{x:15,y:13,color:'white'},{x:13,y:4,color:'black'},{x:15,y:10,color:'white'},{x:9,y:3,color:'black'},{x:3,y:9,color:'white'},{x:9,y:15,color:'black'}] },
+                                        { blackPlayer: '用户', whitePlayer: 'Clarus AI', moveA: 'R4', moveB: 'C10', winrateDelta: 0.06, leadDelta: 3.5, detail: '右下角三三侵入时机正好：白棋外势在R10，但Q7位置空缺', stones: [{x:3,y:3,color:'black'},{x:15,y:3,color:'white'},{x:3,y:15,color:'black'},{x:15,y:15,color:'white'},{x:9,y:3,color:'black'},{x:15,y:9,color:'white'},{x:9,y:15,color:'black'},{x:12,y:15,color:'white'}] },
+                                    ],
+                                    concepts: ['三三侵入', '时机', '模样', '先手'],
+                                },
+                            ]
+                        },
+                        {
+                            id: 'endgame', num: 10, name: '收官技巧', icon: '🧮',
+                            subtitle: '先手官子、逆收、目数计算',
+                            type: 'lessons',
+                            desc: '收官（官子）是棋局的最后阶段。很多棋手在前半盘下得好，却因为收官失误而输棋。精确的收官能力是高手的标志。',
+                            relatedChapters: ['territory-influence'],
+                            lessons: [
+                                { title: '先手官子与后手官子', content: '先手官子：下完后对方必须应对，我方可以继续抢占下一个大官子。后手官子：下完后对方不需要应对。先手官子的价值远大于后手，因为你不仅获得了目数，还保持了主动权。', keyPoint: '先手官子 > 后手官子。保持先手 = 保持主动。' },
+                                { title: '逆收', content: '"逆收"是对方本来该收的官子，被你抢先收走。逆收的价值 = 你得到的 + 对方损失的，通常是双倍价值。发现大的逆收机会是收官阶段最关键的技能。', keyPoint: '逆收 = 双倍价值。找到大逆收能扭转局势。' },
+                                { title: '目数计算', content: '收官阶段要能准确计算每个官子的价值（几目），从大到小依次收取。常见的计算：一路扳 = 2目（后手），二路扳接 = 4目（后手），先手1目的价值可能大于后手5目。', keyPoint: '会算目数才能知道哪个官子最大，避免亏损。' },
+                            ]
+                        },
+                    ]
+                },
+            ]
+        };
+
+        // ================================
+        // 当前筛选状态
+        // ================================
+        let currentLevelFilter = 'all';
+
+        // ================================
+        // 渲染教学体系
+        // ================================
+        function renderTeachingSystem() {
+            const { levels } = GO_CURRICULUM;
+            const userRecords = JSON.parse(localStorage.getItem('clarusGameRecords') || '[]');
+
+            // Calculate stats
+            let totalChapters = 0, totalLessons = 0, totalScenarios = 0;
+            levels.forEach(level => {
+                level.chapters.forEach(ch => {
+                    totalChapters++;
+                    if (ch.lessons) totalLessons += ch.lessons.length;
+                    if (ch.maxims) {
+                        totalLessons += ch.maxims.length;
+                        ch.maxims.forEach(m => { totalScenarios += m.scenarios.length; });
+                    }
+                });
+            });
+            totalScenarios += userRecords.length;
+
+            document.getElementById('totalLevels').textContent = levels.length;
+            document.getElementById('totalChapters').textContent = totalChapters;
+            document.getElementById('totalLessons').textContent = totalLessons;
+            document.getElementById('totalScenarios').textContent = totalScenarios;
+
+            // Render level filter pills
+            const filterEl = document.getElementById('levelFilter');
+            filterEl.innerHTML = `<button class="level-pill ${currentLevelFilter === 'all' ? 'active' : ''}" onclick="filterLevel('all')">全部</button>`;
+            levels.forEach(lv => {
+                filterEl.innerHTML += `<button class="level-pill ${currentLevelFilter === lv.id ? 'active' : ''}" onclick="filterLevel('${lv.id}')">${lv.icon} ${lv.name}</button>`;
+            });
+
+            // Render book content
+            const contentEl = document.getElementById('bookContent');
+            contentEl.innerHTML = '';
+
+            const filteredLevels = currentLevelFilter === 'all' ? levels : levels.filter(lv => lv.id === currentLevelFilter);
+
+            filteredLevels.forEach(level => {
+                const levelDiv = document.createElement('div');
+                levelDiv.className = 'book-level';
+                levelDiv.innerHTML = `
+                    <div class="book-level-header" style="--level-color: ${level.color}">
+                        <span class="book-level-icon">${level.icon}</span>
+                        <div class="book-level-info">
+                            <div class="book-level-name">${level.name}</div>
+                            <div class="book-level-subtitle">${level.subtitle}</div>
+                        </div>
+                        <span class="book-level-count">${level.chapters.length} 章</span>
+                    </div>
+                    <div class="chapter-list" id="level-${level.id}"></div>
+                `;
+                contentEl.appendChild(levelDiv);
+
+                const listEl = levelDiv.querySelector('.chapter-list');
+                level.chapters.forEach(ch => {
+                    listEl.appendChild(renderChapterCard(ch, level));
+                });
+            });
+        }
+
+        function renderChapterCard(ch, level) {
+            const card = document.createElement('div');
+            card.className = 'chapter-card';
+            card.id = 'chapter-' + ch.id;
+
+            const lessonCount = (ch.lessons ? ch.lessons.length : 0) + (ch.maxims ? ch.maxims.length : 0);
+            const scenarioCount = ch.maxims ? ch.maxims.reduce((s, m) => s + m.scenarios.length, 0) : 0;
+            let statText = lessonCount + ' 课时';
+            if (scenarioCount > 0) statText += ' · ' + scenarioCount + ' 棋谱';
+
+            // Build body content
+            let bodyHTML = '';
+            if (ch.desc) bodyHTML += `<div class="chapter-intro">${ch.desc}</div>`;
+
+            // Text lessons (for beginner/instructional content)
+            if (ch.lessons) {
+                bodyHTML += ch.lessons.map((lesson, idx) => `
+                    <div class="text-lesson">
+                        <div class="text-lesson-header">
+                            <span class="text-lesson-num">${idx + 1}</span>
+                            <span class="text-lesson-title">${lesson.title}</span>
+                        </div>
+                        <div class="text-lesson-content">${lesson.content}</div>
+                        ${lesson.diagrams ? `<div class="text-lesson-diagrams">${lesson.diagrams.map(d => `<div class="text-lesson-diagram-item">${generateDiagramSVG(d.config)}<div class="text-lesson-diagram-caption">${d.caption}</div></div>`).join('')}</div>` : ''}
+                        ${lesson.keyPoint ? `<div class="text-lesson-keypoint">${lesson.keyPoint}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            // Maxim lessons (for intermediate+ content with scenarios)
+            if (ch.maxims && ch.maxims.length > 0) {
+                if (ch.lessons && ch.lessons.length > 0) {
+                    bodyHTML += `<div style="margin: 16px 0 8px; font-size: 0.82rem; font-weight: 700; color: var(--color-gold-darker); letter-spacing: 0.06em;">实战格言</div>`;
+                }
+                bodyHTML += `<div class="lesson-timeline">`;
+                bodyHTML += ch.maxims.map((m, idx) => renderMaximLesson(m, idx)).join('');
+                bodyHTML += `</div>`;
+            }
+
+            // Related chapters
+            if (ch.relatedChapters && ch.relatedChapters.length > 0) {
+                const allChapters = GO_CURRICULUM.levels.flatMap(l => l.chapters);
+                const relatedNames = ch.relatedChapters.map(rid => {
+                    const r = allChapters.find(c => c.id === rid);
+                    return r ? { id: r.id, name: r.name } : null;
+                }).filter(Boolean);
+                if (relatedNames.length > 0) {
+                    bodyHTML += `<div class="chapter-related">
+                        <span>相关章节：</span>
+                        ${relatedNames.map(r => `<span class="chapter-related-tag" onclick="event.stopPropagation(); scrollToChapter('${r.id}')">${r.name}</span>`).join('')}
+                    </div>`;
+                }
+            }
+
+            card.innerHTML = `
+                <div class="chapter-top" onclick="toggleChapter('${ch.id}')">
+                    <div class="chapter-num" style="background: ${level.color}">${ch.num}</div>
+                    <div class="chapter-meta">
+                        <div class="chapter-name">${ch.icon} ${ch.name}</div>
+                        <div class="chapter-subtitle">${ch.subtitle}</div>
+                    </div>
+                    <div class="chapter-info-right">
+                        <span class="chapter-stat">${statText}</span>
+                        <span class="chapter-arrow">▼</span>
+                    </div>
+                </div>
+                <div class="chapter-body">${bodyHTML}</div>
+            `;
+            return card;
+        }
+
+        function renderMaximLesson(maxim, idx) {
+            const scenariosHTML = maxim.scenarios.map(sc => `
+                <div class="lesson-evidence" onclick="event.stopPropagation(); openScenarioDetail(${JSON.stringify(sc).replace(/"/g, '&quot;')}, '${maxim.text.replace(/'/g, "\\'")}')">
+                    <div class="lesson-board-mini">
+                        ${generateBoardSVG(sc.stones, 120, { moveA: sc.moveA, moveB: sc.moveB })}
+                    </div>
+                    <div class="lesson-evidence-info">
+                        <div class="lesson-evidence-players">${sc.blackPlayer} vs ${sc.whitePlayer}</div>
+                        <div class="lesson-evidence-moves">
+                            <span class="le-badge a">推荐 ${sc.moveA}</span>
+                            <span class="le-badge b">对比 ${sc.moveB}</span>
+                        </div>
+                        <div class="lesson-evidence-stats">胜率差 ${(sc.winrateDelta*100).toFixed(1)}% · 目差 ${sc.leadDelta.toFixed(1)}</div>
+                        <div style="font-size:0.78rem; color:var(--color-ink-gray); margin-top:4px; line-height:1.4;">${sc.detail}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            const noScenarios = maxim.scenarios.length === 0
+                ? `<div class="lesson-no-scenario">暂无实战情景 — 在工作区分析后自动收录</div>` : '';
+
+            return `
+                <div class="lesson-item">
+                    <div class="lesson-number">格言 ${idx + 1} · ${maxim.scenarios.length} 个情景</div>
+                    <div class="lesson-maxim">${maxim.text}</div>
+                    <div class="lesson-explanation">${maxim.explanation}</div>
+                    ${scenariosHTML}
+                    ${noScenarios}
+                    <div class="lesson-related">
+                        ${maxim.concepts.map(c => `<span class="lesson-concept-tag">${c}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ================================
+        // 交互：筛选、展开、导航
+        // ================================
+        function filterLevel(levelId) {
+            currentLevelFilter = levelId;
+            renderTeachingSystem();
+        }
+
+        function toggleChapter(id) {
+            const card = document.getElementById('chapter-' + id);
+            const wasExpanded = card.classList.contains('expanded');
+
+            // Collapse all
+            document.querySelectorAll('.chapter-card.expanded').forEach(c => c.classList.remove('expanded'));
+
+            if (!wasExpanded) {
+                card.classList.add('expanded');
+                setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+            }
+        }
+
+        function scrollToChapter(id) {
+            // If filtered, switch to 'all' first
+            if (currentLevelFilter !== 'all') {
+                currentLevelFilter = 'all';
+                renderTeachingSystem();
+            }
+            setTimeout(() => {
+                const card = document.getElementById('chapter-' + id);
+                if (card) {
+                    card.classList.add('expanded');
+                    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        }
+
+        // ================================
+        // 学习笔记系统
+        // ================================
+        let currentNoteFilter = 'pending';
+
+        function renderLearningNotes() {
+            const records = JSON.parse(localStorage.getItem('clarusAnalyses') || '[]');
+            const gameRecords = JSON.parse(localStorage.getItem('clarusGameRecords') || '[]');
+            // Merge both sources, deduplicate by id
+            const allNotes = [...gameRecords];
+            const ids = new Set(gameRecords.map(r => r.id));
+            records.forEach(r => { if (!ids.has(r.id)) allNotes.push(r); });
+
+            // Stats
+            const pending = allNotes.filter(n => !n.status || n.status === 'pending').length;
+            const assigned = allNotes.filter(n => n.status === 'assigned').length;
+            const dismissed = allNotes.filter(n => n.status === 'dismissed').length;
+            document.getElementById('notesStats').innerHTML = `
+                待整理 <span>${pending}</span> · 已归类 <span>${assigned}</span> · 已忽略 <span>${dismissed}</span> · 共 <span>${allNotes.length}</span> 条
+            `;
+
+            // Filter pills active state
+            document.querySelectorAll('.notes-filter-pill').forEach(p => {
+                p.classList.toggle('active', p.textContent.includes(
+                    currentNoteFilter === 'pending' ? '待整理' :
+                    currentNoteFilter === 'assigned' ? '已归类' :
+                    currentNoteFilter === 'dismissed' ? '已忽略' : '全部'
+                ));
+            });
+
+            // Filter
+            let filtered = allNotes;
+            if (currentNoteFilter !== 'all') {
+                filtered = allNotes.filter(n => (n.status || 'pending') === currentNoteFilter);
+            }
+
+            const listEl = document.getElementById('notesList');
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<div class="notes-empty">${currentNoteFilter === 'pending' ? '没有待整理的笔记。去工作台分析棋局后会自动记录！' : '暂无记录'}</div>`;
+                return;
+            }
+
+            // Build chapter options for assign dropdown
+            const allChapters = GO_CURRICULUM.levels.flatMap(l => l.chapters);
+            const chapterOptions = allChapters.map(ch => `<option value="${ch.id}">${ch.num}. ${ch.name}</option>`).join('');
+
+            listEl.innerHTML = filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).map(note => {
+                const dateStr = note.timestamp ? new Date(note.timestamp).toLocaleDateString('zh-CN') : '-';
+                const maxim = note.maxim || note.maximText || '(未识别格言)';
+                const explanation = note.explanation || '';
+                const concepts = note.concepts || [];
+                const status = note.status || 'pending';
+                const boardSvg = note.stones ? generateBoardSVG(note.stones.slice(0, 30), 80, { moveA: note.moveA, moveB: note.moveB }) : '';
+
+                let statusBadge = '';
+                if (status === 'assigned') {
+                    const ch = allChapters.find(c => c.id === note.chapterId);
+                    statusBadge = `<span class="note-status-badge note-status-assigned">已归类 → ${ch ? ch.name : note.chapterId}</span>`;
+                } else if (status === 'dismissed') {
+                    statusBadge = `<span class="note-status-badge note-status-dismissed">已忽略</span>`;
+                }
+
+                return `<div class="note-card">
+                    <div class="note-card-top">
+                        <div class="note-board-mini">${boardSvg}</div>
+                        <div class="note-info">
+                            <div class="note-maxim">${maxim}</div>
+                            <div class="note-meta">
+                                <span>${dateStr}</span>
+                                ${note.blackPlayer ? `<span>${note.blackPlayer} vs ${note.whitePlayer || '?'}</span>` : ''}
+                                ${note.moveA ? `<span>推荐: ${note.moveA}</span>` : ''}
+                                ${note.winrateDelta ? `<span>胜率差: ${(note.winrateDelta*100).toFixed(1)}%</span>` : ''}
+                                ${statusBadge}
+                            </div>
+                        </div>
+                    </div>
+                    ${explanation ? `<div class="note-explanation">${explanation}</div>` : ''}
+                    ${concepts.length > 0 ? `<div class="note-concepts">${concepts.map(c => `<span class="note-concept-tag">${c}</span>`).join('')}</div>` : ''}
+                    ${status === 'pending' ? `<div class="note-actions">
+                        <select class="note-assign-select" id="assign-${note.id}">
+                            <option value="">选择章节...</option>
+                            ${chapterOptions}
+                        </select>
+                        <button class="note-btn note-btn-assign" onclick="assignNote(${note.id})">归类</button>
+                        <button class="note-btn note-btn-dismiss" onclick="dismissNote(${note.id})">忽略</button>
+                    </div>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        function filterNotes(status) {
+            currentNoteFilter = status;
+            renderLearningNotes();
+        }
+
+        function assignNote(noteId) {
+            const select = document.getElementById('assign-' + noteId);
+            if (!select || !select.value) { alert('请先选择要归类的章节'); return; }
+            const chapterId = select.value;
+
+            // Update in gameRecords
+            const records = JSON.parse(localStorage.getItem('clarusGameRecords') || '[]');
+            const idx = records.findIndex(r => r.id === noteId);
+            if (idx !== -1) {
+                records[idx].status = 'assigned';
+                records[idx].chapterId = chapterId;
+                localStorage.setItem('clarusGameRecords', JSON.stringify(records));
+            }
+            renderLearningNotes();
+        }
+
+        function dismissNote(noteId) {
+            const records = JSON.parse(localStorage.getItem('clarusGameRecords') || '[]');
+            const idx = records.findIndex(r => r.id === noteId);
+            if (idx !== -1) {
+                records[idx].status = 'dismissed';
+                localStorage.setItem('clarusGameRecords', JSON.stringify(records));
+            }
+            renderLearningNotes();
+        }
+
+        // ================================
+        // 情景详情 Modal
+        // ================================
+        function openScenarioDetail(sc, maximText) {
+            const modal = document.getElementById('grDetailModal');
+            const board = document.getElementById('grDetailBoard');
+            const info = document.getElementById('grDetailInfo');
+            const title = document.getElementById('grDetailTitle');
+
+            title.textContent = maximText;
+            board.innerHTML = generateBoardSVG(sc.stones, 400, { moveA: sc.moveA, moveB: sc.moveB, showNumbers: true });
+
+            const wrStr = sc.winrateDelta ? (sc.winrateDelta * 100).toFixed(1) + '%' : '-';
+            const leadStr = sc.leadDelta ? sc.leadDelta.toFixed(1) + '目' : '-';
+
+            let moveListHTML = '';
+            if (sc.stones) {
+                sc.stones.forEach((s, idx) => {
+                    const label = coordToLabel(s.x, s.y);
+                    const dotClass = s.color === 'black' ? 'b' : 'w';
+                    moveListHTML += `<div class="gr-move-entry"><span class="gr-move-num">${idx+1}.</span><span class="gr-move-stone-dot ${dotClass}"></span><span class="gr-move-coord">${label}</span></div>`;
+                });
+            }
+
+            info.innerHTML = `
+                <div class="gr-detail-section">
+                    <div class="gr-detail-section-title">格言</div>
+                    <div style="font-family:var(--font-title); font-size:1.1rem; font-weight:700; color:var(--color-ink-darkgray); padding:12px 16px; border-left:3px solid var(--color-primary-gold); background:rgba(212,175,55,0.04); border-radius:0 10px 10px 0;">${maximText}</div>
+                </div>
+                <div class="gr-detail-section">
+                    <div class="gr-detail-section-title">对局信息</div>
+                    <table class="gr-detail-table">
+                        <tr><td>黑方</td><td>${sc.blackPlayer || '-'}</td></tr>
+                        <tr><td>白方</td><td>${sc.whitePlayer || '-'}</td></tr>
+                        <tr><td>胜率差</td><td style="color:var(--color-primary-gold); font-weight:700;">${wrStr}</td></tr>
+                        <tr><td>目数差</td><td style="color:var(--color-primary-gold); font-weight:700;">${leadStr}</td></tr>
+                    </table>
+                </div>
+                <div class="gr-detail-section">
+                    <div class="gr-detail-section-title">AI 解说</div>
+                    <div class="gr-detail-explanation">${sc.detail}</div>
+                </div>
+                <div class="gr-detail-section">
+                    <div class="gr-detail-section-title">着手记录</div>
+                    <div class="gr-move-list">${moveListHTML || '<div style="padding:10px; grid-column:1/-1; color:var(--color-mountain-gray);">暂无</div>'}</div>
+                </div>
+            `;
+            modal.classList.add('open');
+        }
+
+        function closeGameRecordDetail() {
+            document.getElementById('grDetailModal').classList.remove('open');
+        }
+
+        document.getElementById('grDetailModal').addEventListener('click', function(e) {
+            if (e.target === this) closeGameRecordDetail();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeGameRecordDetail();
+        });
+    </script>
+</body>
+</html>

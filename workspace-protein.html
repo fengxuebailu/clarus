@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clarus - 蛋白质折叠工作区</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            /* 金色系统 */
+            --color-primary-gold: #d4af37;
+            --color-gold-light: #f4d03f;
+            --color-gold-dark: #b8941e;
+            --color-gold-darker: #8b6914;
+
+            /* 墨色系统 */
+            --color-ink-black: #1a1a1a;
+            --color-ink-darkgray: #2d2d2d;
+            --color-ink-gray: #4a4a4a;
+            --color-mountain-gray: #6b7280;
+
+            /* 米白系统 */
+            --color-mist-white: #f5f0e8;
+            --color-paper-white: rgba(245, 240, 232, 0.92);
+
+            /* 兼容旧变量 */
+            --color-primary-blue: #d4af37;
+            --color-dark-gray: #2d2d2d;
+            --color-warm-beige: #f5f0e8;
+            --color-medium-gray: #4a4a4a;
+            --color-light-gray: rgba(212, 175, 55, 0.3);
+            --color-dark-charcoal: #1a1a1a;
+
+            /* 字体 */
+            --font-title: 'STKaiti', 'KaiTi', 'Microsoft YaHei', 'SimHei', serif;
+            --font-primary: 'Microsoft YaHei', 'SimSun', 'STSong', sans-serif;
+            --spacing-1: 0.5rem;
+            --spacing-2: 1rem;
+            --spacing-3: 1.5rem;
+            --spacing-4: 2rem;
+            --spacing-6: 3rem;
+            --radius-small: 4px;
+            --radius-medium: 8px;
+            --radius-large: 20px;
+            --radius-xl: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: #0f0f0f;
+            color: var(--color-ink-darkgray);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 天空背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 50% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                linear-gradient(to bottom, #1a1a1a 0%, #2d2d2d 30%, #1a1a1a 60%, #0f0f0f 100%);
+            z-index: -5;
+            pointer-events: none;
+        }
+
+        /* 流动的山间雾气 */
+        .mountain-mist {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 70%, rgba(245, 240, 232, 0.08) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 60%, rgba(245, 240, 232, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(245, 240, 232, 0.05) 0%, transparent 45%);
+            z-index: -4;
+            pointer-events: none;
+            animation: mistFlow 20s ease-in-out infinite;
+        }
+
+        @keyframes mistFlow {
+            0%, 100% { opacity: 0.6; transform: translateY(0) scale(1); }
+            50% { opacity: 0.9; transform: translateY(-20px) scale(1.05); }
+        }
+
+        /* 水墨山峦层 */
+        .ink-mountain {
+            position: fixed;
+            bottom: -10%;
+            width: 100%;
+            height: 40%;
+            background-size: cover;
+            background-position: bottom center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+        }
+
+        .ink-mountain.layer-1 {
+            background-image:
+                radial-gradient(ellipse at 50% 100%, transparent 20%, #0f0f0f 100%),
+                linear-gradient(to top,
+                    #1a1a1a 0%,
+                    #2d2d2d 20%,
+                    transparent 60%
+                );
+            height: 35%;
+            z-index: -1;
+            opacity: 0.9;
+        }
+
+        .ink-mountain.layer-2 {
+            background-image:
+                radial-gradient(ellipse at 30% 100%, transparent 15%, #1a1a1a 90%),
+                radial-gradient(ellipse at 70% 100%, transparent 15%, #1a1a1a 90%),
+                linear-gradient(to top,
+                    #2d2d2d 0%,
+                    #4a4a4a 25%,
+                    transparent 70%
+                );
+            height: 45%;
+            z-index: -2;
+            opacity: 0.6;
+        }
+
+        .ink-mountain.layer-3 {
+            background-image:
+                radial-gradient(ellipse at 40% 100%, transparent 20%, #2d2d2d 95%),
+                radial-gradient(ellipse at 65% 100%, transparent 18%, #2d2d2d 95%),
+                linear-gradient(to top,
+                    #4a4a4a 0%,
+                    #6b7280 20%,
+                    transparent 80%
+                );
+            height: 55%;
+            z-index: -3;
+            opacity: 0.4;
+        }
+
+        /* 金色光芒 */
+        .light-ray {
+            position: fixed;
+            top: -20%;
+            left: 50%;
+            width: 2px;
+            height: 60%;
+            background: linear-gradient(to bottom,
+                rgba(212, 175, 55, 0.4) 0%,
+                rgba(212, 175, 55, 0.15) 50%,
+                transparent 100%);
+            transform-origin: top center;
+            pointer-events: none;
+            animation: rayPulse 4s ease-in-out infinite;
+        }
+
+        .light-ray:nth-child(1) {
+            left: 25%;
+            animation-delay: 0s;
+            transform: translateX(-50%) rotate(-8deg);
+        }
+        .light-ray:nth-child(2) {
+            left: 40%;
+            animation-delay: 1s;
+            transform: translateX(-50%) rotate(-3deg);
+        }
+        .light-ray:nth-child(3) {
+            left: 60%;
+            animation-delay: 2s;
+            transform: translateX(-50%) rotate(3deg);
+        }
+        .light-ray:nth-child(4) {
+            left: 75%;
+            animation-delay: 3s;
+            transform: translateX(-50%) rotate(8deg);
+        }
+
+        @keyframes rayPulse {
+            0%, 100% { opacity: 0.3; transform: translateX(-50%) rotate(var(--rotation, 0deg)) scaleY(1); }
+            50% { opacity: 0.6; transform: translateX(-50%) rotate(var(--rotation, 0deg)) scaleY(1.1); }
+        }
+
+        /* 漂浮粒子 */
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat 15s infinite ease-in-out;
+            z-index: -2;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        header {
+            background: rgba(245, 240, 232, 0.92);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 3px solid rgba(212, 175, 55, 0.4);
+            border-left: none;
+            border-right: none;
+            padding: var(--spacing-2) var(--spacing-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 90px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 40px rgba(212, 175, 55, 0.2);
+        }
+
+        .logo {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--color-gold-darker);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .workspace-title {
+            margin-left: auto;
+            margin-right: auto;
+            font-family: var(--font-title);
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--color-ink-darkgray);
+        }
+
+        .btn-header {
+            position: relative;
+            background: linear-gradient(135deg,
+                rgba(212, 175, 55, 0.95) 0%,
+                rgba(244, 208, 63, 1) 50%,
+                rgba(212, 175, 55, 0.95) 100%);
+            background-size: 200% 100%;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--color-ink-black);
+            padding: 0.7rem 1.5rem;
+            border-radius: var(--radius-large);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(212, 175, 55, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            overflow: hidden;
+        }
+
+        .btn-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent);
+            transform: rotate(25deg);
+            animation: btnShine 3s infinite;
+        }
+
+        @keyframes btnShine {
+            0% { left: -60%; }
+            50%, 100% { left: 160%; }
+        }
+
+        .btn-header:hover {
+            background-position: 100% 0;
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 20px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(212, 175, 55, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .workspace-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: calc(100vh - 90px);
+            gap: var(--spacing-2);
+            padding: var(--spacing-2);
+        }
+
+        .panel {
+            background: rgba(245, 240, 232, 0.92);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border-radius: var(--radius-xl);
+            border: 3px solid rgba(212, 175, 55, 0.6);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(212, 175, 55, 0.3),
+                inset 0 0 60px rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-header {
+            padding: var(--spacing-3);
+            border-bottom: 3px solid rgba(212, 175, 55, 0.3);
+            background: linear-gradient(135deg,
+                rgba(212, 175, 55, 0.08) 0%,
+                rgba(244, 208, 63, 0.05) 100%);
+        }
+
+        .panel-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-dark-gray);
+            margin-bottom: var(--spacing-1);
+        }
+
+        .panel-subtitle {
+            font-size: 0.8rem;
+            color: var(--color-medium-gray);
+        }
+
+        .panel-content {
+            flex: 1;
+            padding: var(--spacing-3);
+            overflow-y: auto;
+        }
+
+        .input-section {
+            margin-bottom: var(--spacing-4);
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-1);
+            color: var(--color-dark-gray);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: var(--spacing-2);
+            border: 1px solid var(--color-light-gray);
+            border-radius: var(--radius-small);
+            font-size: 0.95rem;
+            font-family: var(--font-primary);
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--color-primary-gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+
+        select {
+            width: 100%;
+            padding: var(--spacing-2);
+            border: 1px solid var(--color-light-gray);
+            border-radius: var(--radius-small);
+            font-family: var(--font-primary);
+            font-size: 0.95rem;
+        }
+
+        .btn-analyze {
+            position: relative;
+            width: 100%;
+            padding: var(--spacing-2);
+            background: linear-gradient(135deg,
+                rgba(212, 175, 55, 0.95) 0%,
+                rgba(244, 208, 63, 1) 50%,
+                rgba(212, 175, 55, 0.95) 100%);
+            background-size: 200% 100%;
+            color: var(--color-ink-black);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            border-radius: var(--radius-small);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(212, 175, 55, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            overflow: hidden;
+        }
+
+        .btn-analyze::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent);
+            transform: rotate(25deg);
+            animation: btnShine 3s infinite;
+        }
+
+        .btn-analyze:hover {
+            background-position: 100% 0;
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 20px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(212, 175, 55, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .output-section {
+            margin-bottom: var(--spacing-4);
+        }
+
+        .output-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--color-dark-gray);
+            margin-bottom: var(--spacing-2);
+            padding-bottom: var(--spacing-2);
+            border-bottom: 1px solid var(--color-light-gray);
+        }
+
+        .output-content {
+            font-size: 0.9rem;
+            color: var(--color-medium-gray);
+            line-height: 1.6;
+            padding: var(--spacing-2);
+            background: rgba(245, 240, 232, 0.5);
+            border-radius: var(--radius-small);
+            border-left: 3px solid var(--color-primary-gold);
+        }
+
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-4);
+        }
+
+        .prediction-card {
+            padding: var(--spacing-2);
+            background: rgba(245, 240, 232, 0.5);
+            border-radius: var(--radius-small);
+            border-left: 3px solid var(--color-primary-gold);
+        }
+
+        .prediction-label {
+            font-size: 0.8rem;
+            color: var(--color-medium-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-primary-gold);
+        }
+
+        .structure-insight {
+            padding: var(--spacing-2);
+            background: rgba(245, 240, 232, 0.5);
+            border-radius: var(--radius-small);
+            margin-bottom: var(--spacing-2);
+            border-left: 3px solid var(--color-primary-gold);
+        }
+
+        .structure-title {
+            font-weight: 600;
+            color: var(--color-dark-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .structure-text {
+            font-size: 0.85rem;
+            color: var(--color-medium-gray);
+        }
+
+        .question-box {
+            padding: var(--spacing-3);
+            background: linear-gradient(135deg,
+                rgba(212, 175, 55, 0.08) 0%,
+                rgba(212, 175, 55, 0.03) 100%);
+            border-radius: var(--radius-medium);
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            margin-top: var(--spacing-3);
+        }
+
+        .question-input {
+            width: 100%;
+            padding: var(--spacing-2);
+            border: 1px solid var(--color-light-gray);
+            border-radius: var(--radius-small);
+            font-size: 0.9rem;
+            font-family: var(--font-primary);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .question-input:focus {
+            outline: none;
+            border-color: var(--color-primary-gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-ask {
+            position: relative;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg,
+                rgba(212, 175, 55, 0.95) 0%,
+                rgba(244, 208, 63, 1) 50%,
+                rgba(212, 175, 55, 0.95) 100%);
+            background-size: 200% 100%;
+            color: var(--color-ink-black);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: var(--radius-small);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.2),
+                0 0 15px rgba(212, 175, 55, 0.2);
+            overflow: hidden;
+        }
+
+        .btn-ask::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent);
+            transform: rotate(25deg);
+            animation: btnShine 3s infinite;
+        }
+
+        .btn-ask:hover {
+            background-position: 100% 0;
+            transform: translateY(-1px);
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(212, 175, 55, 0.4);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn-save {
+            position: relative;
+            display: inline-block;
+            margin-top: var(--spacing-2);
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg,
+                rgba(212, 175, 55, 0.95) 0%,
+                rgba(244, 208, 63, 1) 50%,
+                rgba(212, 175, 55, 0.95) 100%);
+            background-size: 200% 100%;
+            color: var(--color-ink-black);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: var(--radius-small);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.2),
+                0 0 15px rgba(212, 175, 55, 0.2);
+            overflow: hidden;
+        }
+
+        .btn-save::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent);
+            transform: rotate(25deg);
+            animation: btnShine 3s infinite;
+        }
+
+        .btn-save:hover {
+            background-position: 100% 0;
+            transform: translateY(-1px);
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(212, 175, 55, 0.4);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        @media (max-width: 1024px) {
+            .workspace-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .panel {
+                min-height: 500px;
+            }
+
+            .prediction-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景层 -->
+    <div class="mountain-mist"></div>
+    <div class="ink-mountain layer-3"></div>
+    <div class="ink-mountain layer-2"></div>
+    <div class="ink-mountain layer-1"></div>
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
+
+    <header>
+        <a href="testmain.html" class="logo">✨ Clarus</a>
+        <h2 class="workspace-title">🧬 蛋白质折叠 AI 预测工作区</h2>
+        <a href="insight-library.html" class="btn-header" style="text-decoration: none;">保存分析</a>
+    </header>
+
+    <div class="workspace-container">
+        <!-- Left Panel: Input -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">蛋白质输入</div>
+                <div class="panel-subtitle">输入蛋白质序列或 PDB 数据</div>
+            </div>
+            <div class="panel-content">
+                <div class="input-section">
+                    <label class="input-label">氨基酸序列（FASTA 格式）</label>
+                    <textarea class="input-field" placeholder=">PROTEIN_NAME
+MKTAYIAKQRQISFVKSHFSRQLEERLGLIEVQAPILSRVGDGTQDNLSGAEKAVQVKVKALPDAQFEVVHSLAKWKRQTLGQHDFSAGEGLYTHMKALRPDEDRLSPLHSVYVDQWDWERVMGDGERQFSTLKSTVEAIWAGIKATEAAVSEEFGLAPFLPDQIHFVHSQELLSRYPDLDAKGRERAIAKDLGAVFLVGIGGKLSDGHRHDVRAPDYDDWSTPSELGHAGLNGDILVWNPVLEDAFELSSMGIRVDADTLKHQLALTGDEDRLELEWHQALLRGEMPQTIGGGIGQSRLTMLLLQLPHIGQVQAGVWPAAVRESVPSLL</textarea>
+                </div>
+
+                <div class="input-section">
+                    <label class="input-label">预测模型</label>
+                    <select>
+                        <option>AlphaFold2</option>
+                        <option>OmegaFold</option>
+                        <option>ESMFold</option>
+                    </select>
+                </div>
+
+                <div class="input-section">
+                    <label class="input-label">置信度阈值</label>
+                    <select>
+                        <option>严格 (> 90)</option>
+                        <option>中等 (> 70)</option>
+                        <option>宽松 (> 50)</option>
+                    </select>
+                </div>
+
+                <button class="btn-analyze">开始预测</button>
+
+                <div class="question-box">
+                    <label class="input-label" style="margin-bottom: var(--spacing-2);">结构相关问题</label>
+                    <input type="text" class="question-input" placeholder="询问预测的蛋白质结构...">
+                    <button class="btn-ask">提问</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Output & Analysis -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">预测结果 & 分析</div>
+                <div class="panel-subtitle">蛋白质结构的可视化解释</div>
+            </div>
+            <div class="panel-content">
+                <div class="output-section">
+                    <div class="output-title">预测摘要</div>
+                    <div class="output-content">
+                        该蛋白质序列预测为一个单链蛋白，长度 403 个氨基酸。模型以高置信度预测了其 3D 结构，主要由 8 个 α-螺旋和 5 个 β-折叠组成。
+                    </div>
+                </div>
+
+                <div class="output-section">
+                    <div class="output-title">关键指标</div>
+                    <div class="prediction-grid">
+                        <div class="prediction-card">
+                            <div class="prediction-label">平均 pLDDT</div>
+                            <div class="prediction-value">87.3%</div>
+                        </div>
+                        <div class="prediction-card">
+                            <div class="prediction-label">高置信度区域</div>
+                            <div class="prediction-value">92%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="output-section">
+                    <div class="output-title">结构特征</div>
+                    <div class="structure-insight">
+                        <div class="structure-title">活性位点预测</div>
+                        <div class="structure-text">在第 145-167 位置检测到可能的活性位点，周围有高度保守的残基。</div>
+                    </div>
+                    <div class="structure-insight">
+                        <div class="structure-title">二级结构成分</div>
+                        <div class="structure-text">α-螺旋占 45%，β-折叠占 28%，无规线圈占 27%。这种组成表明蛋白质具有典型的全能酶结构。</div>
+                    </div>
+                    <div class="structure-insight">
+                        <div class="structure-title">折叠置信度</div>
+                        <div class="structure-text">大部分结构预测置信度高（pLDDT > 80），但 N-末端区域（1-30位）置信度较低（pLDDT 50-60），可能表示该区域具有内在柔性。</div>
+                    </div>
+                </div>
+
+                <button class="btn-save">保存本次预测到文库</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 生成漂浮粒子
+        function createParticles() {
+            const particleCount = 25;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                document.body.appendChild(particle);
+            }
+        }
+        createParticles();
+    </script>
+</body>
+</html>

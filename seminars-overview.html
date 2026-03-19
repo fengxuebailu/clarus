@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clarus - 研讨室总览</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --color-primary-blue: #4da6ff;
+            --color-dark-gray: #383838;
+            --color-warm-beige: #f4efea;
+            --color-medium-gray: #555555;
+            --color-light-gray: #e0e0e0;
+            --color-dark-charcoal: #2d2d2d;
+            --font-primary: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --spacing-1: 0.5rem;
+            --spacing-2: 1rem;
+            --spacing-3: 1.5rem;
+            --spacing-4: 2rem;
+            --spacing-6: 3rem;
+            --radius-small: 4px;
+            --radius-medium: 8px;
+            --radius-large: 20px;
+            --radius-xl: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: var(--color-dark-gray);
+            min-height: 100vh;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-left: none;
+            border-right: none;
+            padding: var(--spacing-2) var(--spacing-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 90px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--color-dark-gray);
+            transition: color 0.2s;
+        }
+
+        .logo:hover {
+            color: var(--color-primary-blue);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: var(--spacing-4) var(--spacing-4) var(--spacing-2);
+            color: var(--color-dark-gray);
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--color-medium-gray);
+            margin: 0 var(--spacing-4) var(--spacing-4);
+        }
+
+        .seminars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: var(--spacing-3);
+            padding: var(--spacing-4);
+        }
+
+        .seminar-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .seminar-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-color: var(--color-primary-blue);
+        }
+
+        .seminar-card.active {
+            border-color: var(--color-primary-blue);
+            background: linear-gradient(135deg, rgba(77, 166, 255, 0.02) 0%, white 100%);
+        }
+
+        .seminar-card.coming-soon {
+            opacity: 0.6;
+        }
+
+        .seminar-header {
+            padding: var(--spacing-3);
+            background: linear-gradient(135deg, rgba(77, 166, 255, 0.08) 0%, rgba(77, 166, 255, 0.04) 100%);
+            border-bottom: 1px solid var(--color-light-gray);
+        }
+
+        .seminar-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .seminar-subtitle {
+            font-size: 0.9rem;
+            color: var(--color-medium-gray);
+        }
+
+        .seminar-body {
+            padding: var(--spacing-3);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .status-badge.operational {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-badge.development {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .agents-list {
+            margin: var(--spacing-2) 0;
+        }
+
+        .agent-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: var(--spacing-2);
+            background: #f9f9f9;
+            border-radius: var(--radius-small);
+            margin-bottom: var(--spacing-1);
+            border-left: 3px solid var(--color-primary-blue);
+        }
+
+        .agent-name {
+            font-weight: 600;
+            color: var(--color-dark-gray);
+        }
+
+        .agent-desc {
+            font-size: 0.85rem;
+            color: var(--color-medium-gray);
+            flex: 1;
+        }
+
+        .agent-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-2);
+            margin-top: var(--spacing-2);
+        }
+
+        .stat-card {
+            padding: var(--spacing-2);
+            background: linear-gradient(135deg, rgba(77, 166, 255, 0.05) 0%, rgba(77, 166, 255, 0.02) 100%);
+            border-radius: var(--radius-small);
+            border: 1px solid rgba(77, 166, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--color-medium-gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-primary-blue);
+        }
+
+        .btn-enter {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: var(--spacing-2);
+            padding: 0.75rem 1.5rem;
+            background-color: var(--color-primary-blue);
+            color: white;
+            border: 2px solid var(--color-dark-gray);
+            border-radius: var(--radius-small);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-enter:hover {
+            background-color: #2d8fdb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(77, 166, 255, 0.3);
+        }
+
+        .btn-enter:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .architecture-section {
+            margin: var(--spacing-4);
+            padding: var(--spacing-4);
+            background: white;
+            border-radius: var(--radius-medium);
+            border: 1px solid var(--color-light-gray);
+        }
+
+        .architecture-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .architecture-diagram {
+            margin-top: var(--spacing-3);
+            padding: var(--spacing-3);
+            background: #f9f9f9;
+            border-radius: var(--radius-small);
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+
+        .workflow-step {
+            padding: var(--spacing-2);
+            background: white;
+            border-radius: var(--radius-small);
+            margin-bottom: var(--spacing-1);
+            border-left: 3px solid var(--color-primary-blue);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="testmain.html" class="logo">✨ Clarus</a>
+        <h2 style="margin-left: auto; margin-right: auto; font-size: 1.25rem; font-weight: 600;">
+            🏛️ 研讨室总览 - Dialectical Engine
+        </h2>
+        <a href="workspace-go-enhanced.html" class="btn-enter" style="margin: 0; padding: 0.7rem 1.5rem;">
+            <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+            进入工作区
+        </a>
+    </header>
+
+    <main>
+        <h1 class="page-title">Clarus 辩证引擎 - 研讨室系统</h1>
+        <p class="page-subtitle">
+            通过多智能体辩论与"重建游戏"循环，将AI的黑箱决策转化为人类可理解的智慧
+        </p>
+
+        <div class="seminars-grid">
+            <!-- Seminar I: War Room -->
+            <div class="seminar-card active">
+                <div class="seminar-header">
+                    <div class="seminar-title">
+                        <i data-lucide="crosshair" style="width: 32px; height: 32px;"></i>
+                        Seminar I: War Room
+                    </div>
+                    <div class="seminar-subtitle">战情室 - 微观层面着法分析</div>
+                </div>
+                <div class="seminar-body">
+                    <div class="status-badge operational">
+                        <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                        已实现并运行中
+                    </div>
+
+                    <p style="font-size: 0.9rem; color: var(--color-medium-gray); margin-bottom: var(--spacing-2); line-height: 1.6;">
+                        分析具体围棋着法的研讨会。通过5个智能体的协作，实现"重建游戏"验证循环，确保AI解释的准确性。
+                    </p>
+
+                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: var(--spacing-1);">智能体议会:</h4>
+                    <div class="agents-list">
+                        <div class="agent-item">
+                            <i data-lucide="brain" style="width: 20px; height: 20px; color: var(--color-primary-blue);"></i>
+                            <div style="flex: 1;">
+                                <div class="agent-name">Agent A: Grandmaster</div>
+                                <div class="agent-desc">KataGo 引擎 - 输出数学真值 V_true</div>
+                            </div>
+                            <div class="agent-status">Ready</div>
+                        </div>
+
+                        <div class="agent-item">
+                            <i data-lucide="pen-tool" style="width: 20px; height: 20px; color: var(--color-primary-blue);"></i>
+                            <div style="flex: 1;">
+                                <div class="agent-name">Agent B: Scribe</div>
+                                <div class="agent-desc">Gemini Pro - 生成自然语言解释</div>
+                            </div>
+                            <div class="agent-status">Ready</div>
+                        </div>
+
+                        <div class="agent-item">
+                            <i data-lucide="search" style="width: 20px; height: 20px; color: var(--color-primary-blue);"></i>
+                            <div style="flex: 1;">
+                                <div class="agent-name">Agent C: Profiler</div>
+                                <div class="agent-desc">Gemini Pro - 盲测重建验证</div>
+                            </div>
+                            <div class="agent-status">Ready</div>
+                        </div>
+
+                        <div class="agent-item">
+                            <i data-lucide="scale" style="width: 20px; height: 20px; color: var(--color-primary-blue);"></i>
+                            <div style="flex: 1;">
+                                <div class="agent-name">Agent D: Arbiter</div>
+                                <div class="agent-desc">数学逻辑 - 计算误差并裁决</div>
+                            </div>
+                            <div class="agent-status">Ready</div>
+                        </div>
+
+                        <div class="agent-item">
+                            <i data-lucide="target" style="width: 20px; height: 20px; color: var(--color-primary-blue);"></i>
+                            <div style="flex: 1;">
+                                <div class="agent-name">Agent E: Delta Hunter</div>
+                                <div class="agent-desc">分析器 - 提取着法差异特征</div>
+                            </div>
+                            <div class="agent-status">Ready</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">重建循环</div>
+                            <div class="stat-value">最多3次</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">误差阈值</div>
+                            <div class="stat-value">0.15</div>
+                        </div>
+                    </div>
+
+                    <a href="workspace-go-enhanced.html" class="btn-enter">
+                        <i data-lucide="play" style="width: 18px; height: 18px;"></i>
+                        进入 War Room
+                    </a>
+                </div>
+            </div>
+
+            <!-- Seminar II: Theory Seminar -->
+            <div class="seminar-card coming-soon">
+                <div class="seminar-header">
+                    <div class="seminar-title">
+                        <i data-lucide="book-open" style="width: 32px; height: 32px;"></i>
+                        Seminar II: Theory Seminar
+                    </div>
+                    <div class="seminar-subtitle">理论研讨会 - 宏观层面概念词典</div>
+                </div>
+                <div class="seminar-body">
+                    <div class="status-badge development">
+                        <i data-lucide="construction" style="width: 16px; height: 16px;"></i>
+                        开发中
+                    </div>
+
+                    <p style="font-size: 0.9rem; color: var(--color-medium-gray); margin-bottom: var(--spacing-2); line-height: 1.6;">
+                        定义围棋术语和概念的研讨会。通过反事实测试验证概念定义，建立人类术语与数学特征的映射关系。
+                    </p>
+
+                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: var(--spacing-1);">核心功能:</h4>
+                    <div class="agents-list">
+                        <div class="agent-item">
+                            <i data-lucide="lightbulb" style="width: 20px; height: 20px; color: #f57c00;"></i>
+                            <div style="flex: 1;">
+                                <div class="agent-name">概念提议</div>
+                                <div class="agent-desc">Scribe 提出围棋术语定义</div>
+                            </div>
+                        </div>
+
+                        <div class="agent-item">
+                            <i data-lucide="help-circle" style="width: 20px; height: 20px; color: #f57c00;"></i>
+                            <div style="flex: 1;">
+                                <div class="agent-name">反事实挑战</div>
+                                <div class="agent-desc">Profiler 提出测试场景</div>
+                            </div>
+                        </div>
+
+                        <div class="agent-item">
+                            <i data-lucide="flask-conical" style="width: 20px; height: 20px; color: #f57c00;"></i>
+                            <div style="flex: 1;">
+                                <div class="agent-name">实验验证</div>
+                                <div class="agent-desc">Grandmaster 运行反事实测试</div>
+                            </div>
+                        </div>
+
+                        <div class="agent-item">
+                            <i data-lucide="database" style="width: 20px; height: 20px; color: #f57c00;"></i>
+                            <div style="flex: 1;">
+                                <div class="agent-name">概念词典</div>
+                                <div class="agent-desc">构建术语→数学特征映射库</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-2); padding: var(--spacing-2); background: #fff3e0; border-radius: var(--radius-small); font-size: 0.85rem; color: #f57c00;">
+                        <strong>示例概念:</strong> "厚势" → Influence > 0.8 && Eye_Potential > 0.5
+                    </div>
+
+                    <button class="btn-enter" disabled>
+                        <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
+                        即将推出
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture Diagram -->
+        <div class="architecture-section">
+            <h2 class="architecture-title">
+                <i data-lucide="git-branch" style="width: 28px; height: 28px;"></i>
+                系统架构 - Reconstruction Game 工作流
+            </h2>
+
+            <div class="architecture-diagram">
+<pre>
+┌─────────────────────────────────────────────────────────────────┐
+│                     用户输入 (User Input)                          │
+│          Board State + Move A (AI Best) + Move B (User)         │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Step 1: Grandmaster (KataGo) - 并行模拟                         │
+│  ├─ 模拟 Move A → 生成 V_A (胜率, 目数, 所有权图)                 │
+│  └─ 模拟 Move B → 生成 V_B                                       │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Step 2: Delta Hunter - 差异提取                                │
+│  └─ 计算 ΔV = V_A - V_B                                         │
+│     识别关键差异 (胜率变化, 区域控制, 厚势 vs 实地)               │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Step 3: Reconstruction Loop (最多3次迭代)                       │
+│                                                                  │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │ Attempt 1                                                 │  │
+│  │ ├─ Scribe (LLM):    生成解释 T_1                          │  │
+│  │ ├─ Profiler (LLM):  盲测重建 V_est_1                      │  │
+│  │ ├─ Arbiter (Math):  计算误差 Error_1                      │  │
+│  │ └─ 判断: Error_1 > 0.15? 是 → 反馈并重试                  │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │ Attempt 2                                                 │  │
+│  │ ├─ Scribe:   根据反馈重写 T_2                             │  │
+│  │ ├─ Profiler: 重建 V_est_2                                │  │
+│  │ ├─ Arbiter:  Error_2 < 0.15? 是 → 验证通过!               │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Step 4: 输出已验证的分析结果                                     │
+│  ├─ 最终解释 (Natural Language)                                 │
+│  ├─ 围棋概念标签 (Thickness, Aji, Shape...)                     │
+│  ├─ 数值指标 (胜率差异, 目数差异)                                 │
+│  └─ 验证状态 (Passed / Failed)                                  │
+└─────────────────────────────────────────────────────────────────┘
+</pre>
+            </div>
+
+            <h3 style="font-size: 1.2rem; font-weight: 600; margin: var(--spacing-3) 0 var(--spacing-2);">
+                核心原则
+            </h3>
+
+            <div class="workflow-step">
+                <strong>1. Reconstruction Game (重建游戏)</strong><br>
+                只有当第三方能够仅通过阅读解释文本就重建原始 AI 数据时，该解释才是有效的。
+            </div>
+
+            <div class="workflow-step">
+                <strong>2. Contrastive Learning (对比学习)</strong><br>
+                人类通过对比学习最有效："好" (AI 最佳) vs "可以/差" (用户着法)。必须解释差异 ΔV。
+            </div>
+
+            <div class="workflow-step">
+                <strong>3. Multi-Agent Debate (多智能体辩论)</strong><br>
+                通过 Scribe、Profiler、Arbiter 的循环辩论，自动优化解释质量，无需人工标注。
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="architecture-section">
+            <h2 class="architecture-title">
+                <i data-lucide="activity" style="width: 28px; height: 28px;"></i>
+                系统状态
+            </h2>
+
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="stat-card">
+                    <div class="stat-label">War Room 状态</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #2e7d32;">✓ 运行中</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Gemini API</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #2e7d32;">✓ 已配置</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">KataGo 引擎</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #f57c00;">⚠ Mock数据</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">数据库</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #f57c00;">⚠ 待实现</div>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--spacing-3); padding: var(--spacing-2); background: #e3f2fd; border-radius: var(--radius-small); font-size: 0.9rem;">
+                <strong>💡 提示:</strong> War Room 已完全可用！当前使用 Mock KataGo 数据进行演示。
+                配置真实 KataGo API 后即可分析真实棋局。
+            </div>
+        </div>
+    </main>
+
+    <footer style="background: var(--color-dark-charcoal); color: var(--color-light-gray); padding: var(--spacing-4); text-align: center; margin-top: var(--spacing-4);">
+        <p style="font-size: 0.85rem;">© 2024 Clarus - Making AI Decisions Transparent</p>
+        <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.7;">
+            Powered by Gemini Pro, KataGo, and the Reconstruction Game Framework
+        </p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Check backend health
+        async function checkBackendHealth() {
+            try {
+                const response = await fetch('http://localhost:8000/api/go/health');
+                if (response.ok) {
+                    console.log('✓ Backend is operational');
+                }
+            } catch (error) {
+                console.log('⚠ Backend not running - using demo mode');
+            }
+        }
+
+        checkBackendHealth();
+    </script>
+</body>
+</html>
