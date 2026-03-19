@@ -43,12 +43,26 @@ Superhuman AI systems like AlphaGo and KataGo can beat every human player — bu
 
 ## Demo
 
-<!-- Replace with actual screenshot or GIF of your running application -->
-<!-- To record: use LICEcap (GIF) or OBS (video), then convert to GIF -->
+<p align="center">
+  <img src="assets/demo-workspace-full.png" alt="Clarus Workspace" width="900" />
+</p>
 
-> **Coming soon** — Record a demo with `workspace-go.html` and drop it here!
->
-> In the meantime, start the server and open `frontend/workspace-go.html` to see it in action.
+<p align="center"><em>The War Room — AI agents debate move analysis in real time</em></p>
+
+<details>
+<summary><strong>More screenshots</strong></summary>
+
+<p align="center">
+  <img src="assets/demo-go-board.png" alt="Interactive Go Board" width="700" />
+  <br/><em>Interactive Go board with stone placement and game records</em>
+</p>
+
+<p align="center">
+  <img src="assets/demo-insight.png" alt="Insight Library" width="700" />
+  <br/><em>Insight Library — browse verified AI analysis and learning materials</em>
+</p>
+
+</details>
 
 ---
 
